@@ -362,6 +362,8 @@
     let isFormOpen = false;
     let initialFormLoad = true;
     let slides = [];
+    let formOpenTime = 0;
+    let formTimeout = null;
 
     // Load media from manifest
     async function loadImages() {
@@ -507,15 +509,45 @@
     function openForm() {
       if (isFormOpen) return;
       isFormOpen = true;
+      formOpenTime = Date.now();
       document.getElementById('formModal').classList.add('visible');
       document.getElementById('slideshowContainer').style.pointerEvents = 'none';
+
+      // Auto-close form after 3 minutes of inactivity (in case submission doesn't trigger reload)
+      formTimeout = setTimeout(() => {
+        console.log('Form timeout - auto-closing after 3 minutes');
+        showThankYouAndReturn();
+      }, 180000); // 3 minutes
     }
 
     // Close form modal
     function closeForm() {
+      if (formTimeout) {
+        clearTimeout(formTimeout);
+        formTimeout = null;
+      }
       document.getElementById('formModal').classList.remove('visible');
       document.getElementById('slideshowContainer').style.pointerEvents = 'auto';
       isFormOpen = false;
+    }
+
+    // Show thank you screen and return to slideshow
+    function showThankYouAndReturn() {
+      if (formTimeout) {
+        clearTimeout(formTimeout);
+        formTimeout = null;
+      }
+      document.getElementById('formModal').classList.remove('visible');
+      document.getElementById('thankYouScreen').classList.add('visible');
+
+      setTimeout(() => {
+        document.getElementById('thankYouScreen').classList.remove('visible');
+        document.getElementById('slideshowContainer').style.pointerEvents = 'auto';
+        isFormOpen = false;
+        // Reload form for next person
+        document.getElementById('gform').src = formURL;
+        formLoaded = false;
+      }, 2500);
     }
 
     // Pre-load iframe on page load
@@ -527,18 +559,8 @@
       }
 
       // Form was submitted (page reloaded after success)
-      document.getElementById('formModal').classList.remove('visible');
-      document.getElementById('thankYouScreen').classList.add('visible');
-
-      // Return to slideshow after 4-5 seconds
-      setTimeout(() => {
-        document.getElementById('thankYouScreen').classList.remove('visible');
-        document.getElementById('slideshowContainer').style.pointerEvents = 'auto';
-        isFormOpen = false;
-        // Reload form for next person
-        document.getElementById('gform').src = formURL;
-        formLoaded = false;
-      }, 4500);
+      console.log('Form submission detected via iframe reload');
+      showThankYouAndReturn();
     });
 
     // Request fullscreen on first tap/click and enable video autoplay
