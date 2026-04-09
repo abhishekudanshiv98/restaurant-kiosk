@@ -378,6 +378,10 @@
             video.style.width = '100%';
             video.style.height = '100%';
             video.style.objectFit = 'cover';
+            video.preload = 'metadata';
+            video.addEventListener('error', () => {
+              console.error('Video failed to load:', mediaFolder + item.name);
+            });
             slide.appendChild(video);
           } else {
             const img = document.createElement('img');
@@ -403,6 +407,12 @@
     function autoRotateSlides() {
       setInterval(() => {
         if (!isFormOpen && slides.length > 0) {
+          // Stop all videos first
+          document.querySelectorAll('video').forEach(v => {
+            v.pause();
+            v.currentTime = 0;
+          });
+
           slides[currentSlide].classList.remove('active');
           currentSlide = (currentSlide + 1) % slides.length;
           slides[currentSlide].classList.add('active');
@@ -411,11 +421,19 @@
           // If it's a video, auto-play it
           const video = slides[currentSlide].querySelector('video');
           if (video) {
+            console.log('Playing video:', video.src);
             video.currentTime = 0;
-            video.play().catch(e => {});
+
+            const playPromise = video.play();
+            if (playPromise !== undefined) {
+              playPromise.catch(error => {
+                console.log('Video autoplay blocked:', error);
+              });
+            }
 
             // Move to next when video ends
             video.onended = () => {
+              console.log('Video ended, moving to next');
               setTimeout(() => {
                 if (slides.length > 0) {
                   slides[currentSlide].classList.remove('active');
