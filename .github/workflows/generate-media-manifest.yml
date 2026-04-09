@@ -4,6 +4,7 @@ on:
   push:
     paths:
       - 'media/**'
+      - '.github/workflows/generate-media-manifest.yml'
   workflow_dispatch:
 
 jobs:
@@ -13,43 +14,50 @@ jobs:
       contents: write
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Generate media.json manifest
         run: |
-          node -e "
-          const fs = require('fs');
-          const path = require('path');
+          python3 << 'PYTHON_EOF'
+          import json
+          import os
+          from pathlib import Path
 
-          const mediaDir = 'media';
-          const videoExtensions = ['.mp4', '.mov', '.avi', '.mkv', '.webm'];
-          const imageExtensions = ['.jpg', '.jpeg', '.png', '.gif', '.webp'];
+          media_dir = 'media'
+          video_extensions = {'.mp4', '.mov', '.avi', '.mkv', '.webm', '.MOV', '.MP4'}
+          image_extensions = {'.jpg', '.jpeg', '.png', '.gif', '.webp', '.JPG', '.PNG', '.JPEG'}
 
-          // Get all files in media folder
-          const files = fs.readdirSync(mediaDir)
-            .filter(file => {
-              // Skip hidden files and media.json
-              return !file.startsWith('.') && file !== 'media.json';
-            })
-            .sort(); // Sort alphabetically
+          # Get all files in media folder
+          files = sorted([
+            f for f in os.listdir(media_dir)
+            if not f.startswith('.') and f != 'media.json'
+          ])
 
-          // Determine file types and build manifest
-          const media = files.map(file => {
-            const ext = path.extname(file).toLowerCase();
-            const type = videoExtensions.includes(ext) ? 'video' : 'image';
-            return { name: file, type };
-          });
+          # Determine file types and build manifest
+          media = []
+          for file in files:
+            ext = Path(file).suffix
+            if ext in video_extensions:
+              file_type = 'video'
+            elif ext in image_extensions:
+              file_type = 'image'
+            else:
+              continue  # Skip unknown file types
 
-          // Write media.json
-          const manifest = { media };
-          fs.writeFileSync(
-            path.join(mediaDir, 'media.json'),
-            JSON.stringify(manifest, null, 2) + '\n'
-          );
+            media.append({'name': file, 'type': file_type})
 
-          console.log('Generated media.json with ' + media.length + ' items');
-          media.forEach(m => console.log('  - ' + m.name + ' (' + m.type + ')'));
-          "
+          # Write media.json
+          manifest = {'media': media}
+          with open(os.path.join(media_dir, 'media.json'), 'w') as f:
+            json.dump(manifest, f, indent=2)
+            f.write('\n')
+
+          print(f'Generated media.json with {len(media)} items')
+          for m in media:
+            print(f"  - {m['name']} ({m['type']})")
+          PYTHON_EOF
 
       - name: Commit changes
         run: |
@@ -61,5 +69,5 @@ jobs:
           else
             git add media/media.json
             git commit -m "Auto-generate media manifest from media folder"
-            git push
+            git push origin HEAD:main
           fi
