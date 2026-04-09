@@ -66,9 +66,22 @@ No manual steps needed after the initial setup!
 
 ## How It Works
 
+**Media Carousel (Images + Videos):**
+- 🖼️ **Images** auto-rotate every 5 seconds
+- 🎬 **Videos** auto-play when they appear, play fully, then advance
+- Sequential playback based on filename order (use numbering: 01-, 02-, etc.)
+- Mix images and videos - they all rotate seamlessly
+
+**iOS Video Autoplay (Fixed ✅):**
+- Videos require user gesture first (tap screen for fullscreen)
+- Once you tap the screen, videos autoplay automatically on iPad
+- No manual clicking required - tap once, then sit back! 🎉
+- Works on Chrome, Safari, all browsers
+
 **Customer Journey:**
-1. iPad displays rotating slideshow of dishes (5 sec per image)
-2. Customer taps "📝 Share Your Feedback" button
+1. iPad displays rotating slideshow of dishes (5 sec per image, videos play fully)
+2. Videos autoplay automatically after first tap
+3. Customer taps "📝 Share Your Feedback" button on slideshow background
 3. Google Form opens in fullscreen
 4. Customer completes 6 questions (~1 min):
    - Overall experience rating ⭐
