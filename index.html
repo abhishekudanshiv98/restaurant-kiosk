@@ -320,7 +320,7 @@
 <body>
 
   <!-- Background Music -->
-  <audio id="backgroundMusic" loop>
+  <audio id="backgroundMusic">
     <source src="audio/song1.mp3" type="audio/mpeg">
   </audio>
 
@@ -375,6 +375,9 @@
     const backgroundMusicVolume = 0.25; // 25% volume
     const duckingVolume = 0.10; // 10% when video plays
     let backgroundMusic = null;
+    let audioPlaylist = []; // List of all available songs
+    let currentSongIndex = 0; // Current song in shuffled playlist
+    let shuffledPlaylist = []; // Today's shuffled song order
 
     // Load media from manifest
     async function loadImages() {
@@ -620,6 +623,48 @@
       }, 2500);
     }
 
+    // Load audio playlist from manifest
+    async function loadAudioPlaylist() {
+      try {
+        const response = await fetch('audio/audio.json');
+        const data = await response.json();
+        audioPlaylist = (data.audio || []).map(a => 'audio/' + a.name);
+        console.log('Loaded audio playlist:', audioPlaylist);
+        shufflePlaylistForToday();
+      } catch (error) {
+        console.log('No audio playlist found, using default:', error);
+        audioPlaylist = ['audio/song1.mp3'];
+        shuffledPlaylist = audioPlaylist;
+      }
+    }
+
+    // Seeded shuffle based on today's date (same shuffle for entire day)
+    function shufflePlaylistForToday() {
+      // Use today's date as seed
+      const today = new Date();
+      const dayString = today.getFullYear() + '-' + (today.getMonth() + 1) + '-' + today.getDate();
+
+      // Create shuffled copy
+      shuffledPlaylist = [...audioPlaylist];
+
+      // Seeded shuffle using day string as seed
+      let seed = 0;
+      for (let i = 0; i < dayString.length; i++) {
+        seed = ((seed << 5) - seed) + dayString.charCodeAt(i);
+        seed = seed & seed; // Convert to 32-bit integer
+      }
+
+      // Shuffle with seeded random
+      for (let i = shuffledPlaylist.length - 1; i > 0; i--) {
+        seed = (seed * 9301 + 49297) % 233280;
+        const j = Math.floor((seed / 233280) * (i + 1));
+        [shuffledPlaylist[i], shuffledPlaylist[j]] = [shuffledPlaylist[j], shuffledPlaylist[i]];
+      }
+
+      console.log('Shuffled playlist for today:', shuffledPlaylist);
+      currentSongIndex = 0;
+    }
+
     // Background music control functions
     function duckBackgroundMusic() {
       if (backgroundMusic) {
@@ -635,20 +680,55 @@
       }
     }
 
+    function playNextSong() {
+      if (shuffledPlaylist.length === 0) {
+        console.log('No songs in playlist');
+        return;
+      }
+
+      // Get current song
+      const currentSong = shuffledPlaylist[currentSongIndex];
+      console.log('Playing song', currentSongIndex + 1, 'of', shuffledPlaylist.length, ':', currentSong);
+
+      // Set audio source and play
+      backgroundMusic.src = currentSong;
+      backgroundMusic.volume = backgroundMusicVolume;
+
+      const playPromise = backgroundMusic.play();
+      if (playPromise !== undefined) {
+        playPromise
+          .then(() => {
+            console.log('Now playing:', currentSong);
+          })
+          .catch(err => {
+            console.log('Song autoplay blocked (waiting for user interaction):', err);
+            // Move to next song on error
+            moveToNextSong();
+          });
+      }
+    }
+
+    function moveToNextSong() {
+      currentSongIndex = (currentSongIndex + 1) % shuffledPlaylist.length;
+
+      // If we've cycled through all songs, reshuffle for tomorrow concept (or just loop)
+      // For now, just continue with shuffled order
+      playNextSong();
+    }
+
     function startBackgroundMusic() {
       backgroundMusic = document.getElementById('backgroundMusic');
       if (backgroundMusic) {
-        backgroundMusic.volume = backgroundMusicVolume;
-        const playPromise = backgroundMusic.play();
-        if (playPromise !== undefined) {
-          playPromise
-            .then(() => {
-              console.log('Background music started');
-            })
-            .catch(err => {
-              console.log('Background music autoplay blocked (waiting for user interaction)', err);
-            });
-        }
+        // Set up onended handler to play next song
+        backgroundMusic.addEventListener('ended', () => {
+          console.log('Song ended, moving to next');
+          moveToNextSong();
+        });
+
+        // Load playlist and start playing
+        loadAudioPlaylist().then(() => {
+          playNextSong();
+        });
       }
     }
 

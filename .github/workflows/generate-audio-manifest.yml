@@ -1,0 +1,65 @@
+name: Auto-Generate Audio Manifest
+
+on:
+  push:
+    paths:
+      - 'audio/**'
+      - '.github/workflows/generate-audio-manifest.yml'
+  workflow_dispatch:
+
+jobs:
+  generate-manifest:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Generate audio.json manifest
+        run: |
+          python3 << 'PYTHON_EOF'
+          import json
+          import os
+          from pathlib import Path
+
+          audio_dir = 'audio'
+          audio_extensions = {'.mp3', '.wav', '.m4a', '.aac', '.ogg', '.MP3', '.WAV', '.M4A', '.AAC', '.OGG'}
+
+          # Get all audio files in audio folder
+          files = sorted([
+            f for f in os.listdir(audio_dir)
+            if not f.startswith('.') and f != 'audio.json'
+          ])
+
+          # Filter for audio files only
+          audio_files = [f for f in files if Path(f).suffix in audio_extensions]
+
+          # Build manifest
+          audio = [{'name': f} for f in audio_files]
+
+          # Write audio.json
+          manifest = {'audio': audio}
+          with open(os.path.join(audio_dir, 'audio.json'), 'w') as f:
+            json.dump(manifest, f, indent=2)
+            f.write('\n')
+
+          print(f'Generated audio.json with {len(audio)} songs')
+          for a in audio:
+            print(f"  - {a['name']}")
+          PYTHON_EOF
+
+      - name: Commit changes
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+          if git diff --quiet audio/audio.json; then
+            echo "audio.json unchanged"
+          else
+            git add audio/audio.json
+            git commit -m "Auto-generate audio manifest from audio folder"
+            git push origin HEAD:main
+          fi
