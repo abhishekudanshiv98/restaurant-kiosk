@@ -407,6 +407,13 @@
     function autoRotateSlides() {
       setInterval(() => {
         if (!isFormOpen && slides.length > 0) {
+          // Don't skip if a video is currently playing
+          const currentVideo = slides[currentSlide].querySelector('video');
+          if (currentVideo && !currentVideo.paused && !currentVideo.ended) {
+            // Video still playing, skip this rotation
+            return;
+          }
+
           // Stop all videos first
           document.querySelectorAll('video').forEach(v => {
             v.pause();
