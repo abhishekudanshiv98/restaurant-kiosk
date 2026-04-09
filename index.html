@@ -372,23 +372,31 @@
           if (item.type === 'video') {
             const video = document.createElement('video');
             video.src = mediaFolder + item.name;
+            video.autoplay = true; // Critical for iOS
             video.controls = false;
             video.muted = true; // iOS requires muted to autoplay
             video.playsinline = true; // iOS fullscreen fix
+            video.loop = false;
             video.style.width = '100%';
             video.style.height = '100%';
             video.style.objectFit = 'cover';
-            video.preload = 'metadata';
+            video.preload = 'auto';
 
             // Unmute once it starts playing
             video.addEventListener('play', () => {
+              console.log('Video started playing, unmuting');
               video.muted = false;
               video.volume = 1.0;
             });
 
-            video.addEventListener('error', () => {
-              console.error('Video failed to load:', mediaFolder + item.name);
+            video.addEventListener('loadedmetadata', () => {
+              console.log('Video loaded:', item.name);
             });
+
+            video.addEventListener('error', (e) => {
+              console.error('Video failed to load:', item.name, e);
+            });
+
             slide.appendChild(video);
           } else {
             const img = document.createElement('img');
@@ -432,27 +440,25 @@
           slides[currentSlide].classList.add('active');
           document.getElementById('slideNumber').textContent = currentSlide + 1;
 
-          // If it's a video, auto-play it
+          // If it's a video, ensure it plays
           const video = slides[currentSlide].querySelector('video');
           if (video) {
-            console.log('Playing video:', video.src);
+            console.log('Video element found:', video.src);
             video.currentTime = 0;
             video.muted = true; // Ensure muted for iOS autoplay
 
-            const playPromise = video.play();
-            if (playPromise !== undefined) {
-              playPromise
-                .then(() => {
-                  console.log('Video playing');
-                  // Unmute after it starts
-                  setTimeout(() => {
-                    video.muted = false;
-                    video.volume = 1.0;
-                  }, 100);
-                })
-                .catch(error => {
-                  console.log('Video autoplay blocked:', error);
-                });
+            // Try to play - might be blocked on iOS but autoplay attribute should handle it
+            if (video.paused) {
+              const playPromise = video.play();
+              if (playPromise !== undefined) {
+                playPromise
+                  .then(() => {
+                    console.log('Video playing via JavaScript');
+                  })
+                  .catch(error => {
+                    console.log('Video autoplay blocked (relying on autoplay attr):', error);
+                  });
+              }
             }
 
             // Move to next when video ends
