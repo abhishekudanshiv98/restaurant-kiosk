@@ -732,7 +732,7 @@
       }, 2500);
     }
 
-    // Load audio playlist from manifest
+    // Load audio playlist from manifest (called on page load to preload)
     async function loadAudioPlaylist() {
       try {
         const response = await fetch('audio/audio.json');
@@ -741,10 +741,10 @@
         }
         const data = await response.json();
         audioPlaylist = (data.audio || []).map(a => 'audio/' + a.name);
-        console.log('Loaded audio playlist:', audioPlaylist);
+        console.log('[Music] Loaded audio playlist:', audioPlaylist.length, 'songs');
         shufflePlaylistForToday();
       } catch (error) {
-        console.log('No audio playlist found, using default:', error);
+        console.log('[Music] No audio playlist found, using default:', error);
         audioPlaylist = ['audio/song1.mp3'];
         shuffledPlaylist = audioPlaylist;
       }
@@ -780,27 +780,32 @@
     // Background music control functions
     function duckBackgroundMusic() {
       if (backgroundMusic) {
-        console.log('Ducking background music volume to', duckingVolume);
+        console.log('[Music] Ducking volume to', duckingVolume);
         backgroundMusic.volume = duckingVolume;
       }
     }
 
     function restoreBackgroundMusic() {
       if (backgroundMusic) {
-        console.log('Restoring background music volume to', backgroundMusicVolume);
+        console.log('[Music] Restoring volume to', backgroundMusicVolume);
         backgroundMusic.volume = backgroundMusicVolume;
       }
     }
 
     function playNextSong() {
       if (shuffledPlaylist.length === 0) {
-        console.log('No songs in playlist');
+        console.warn('[Music] No songs in playlist, cannot play');
+        return;
+      }
+
+      if (!backgroundMusic) {
+        console.error('[Music] backgroundMusic element is null');
         return;
       }
 
       // Get current song
       const currentSong = shuffledPlaylist[currentSongIndex];
-      console.log('Playing song', currentSongIndex + 1, 'of', shuffledPlaylist.length, ':', currentSong);
+      console.log('[Music] Attempting to play song', currentSongIndex + 1, 'of', shuffledPlaylist.length, ':', currentSong);
 
       // Set audio source and play
       backgroundMusic.src = currentSong;
@@ -810,13 +815,20 @@
       if (playPromise !== undefined) {
         playPromise
           .then(() => {
-            console.log('Now playing:', currentSong);
+            console.log('[Music] Now playing:', currentSong);
             songRetryCount = 0;
           })
           .catch(err => {
-            console.log('Song autoplay blocked (waiting for user interaction):', err);
-            // Move to next song on error
-            moveToNextSong();
+            console.error('[Music] Play failed for:', currentSong, '- error:', err.message);
+            // Only retry with next song if it's a loading error, not autoplay block
+            if (err.name === 'NotAllowedError') {
+              console.error('[Music] Autoplay blocked - user gesture context may have been lost');
+              // Don't retry - all songs will fail with same error
+              songRetryCount = 0;
+            } else {
+              // File error - try next song
+              moveToNextSong();
+            }
           });
       }
     }
@@ -825,24 +837,34 @@
     function moveToNextSong() {
       songRetryCount++;
       if (songRetryCount > shuffledPlaylist.length) {
-        console.error('All songs failed to play, stopping music');
+        console.error('[Music] All songs failed to play, stopping music');
         songRetryCount = 0;
         return;
       }
       currentSongIndex = (currentSongIndex + 1) % shuffledPlaylist.length;
+      console.log('[Music] Moving to next song, attempt', songRetryCount);
       playNextSong();
     }
 
     function startBackgroundMusic() {
       backgroundMusic = document.getElementById('backgroundMusic');
-      if (backgroundMusic) {
-        // Set up onended handler to play next song
-        backgroundMusic.addEventListener('ended', () => {
-          console.log('Song ended, moving to next');
-          moveToNextSong();
-        });
+      if (!backgroundMusic) {
+        console.error('[Music] backgroundMusic element not found');
+        return;
+      }
 
-        // Load playlist and start playing
+      // Set up onended handler to play next song
+      backgroundMusic.addEventListener('ended', () => {
+        console.log('[Music] Song ended, moving to next');
+        moveToNextSong();
+      });
+
+      // Playlist was preloaded on page load, so play immediately (within user gesture context)
+      if (shuffledPlaylist.length > 0) {
+        console.log('[Music] Playlist ready, starting playback immediately');
+        playNextSong();
+      } else {
+        console.warn('[Music] Playlist not loaded yet, loading now (may lose gesture context)');
         loadAudioPlaylist().then(() => {
           playNextSong();
         });
@@ -867,22 +889,28 @@
       if (!fullscreenRequested) {
         fullscreenRequested = true;
         userHasInteracted = true;
-        console.log('User interacted, videos can now play');
+        console.log('[Init] User interacted - enabling video and audio playback');
         enterFullscreen();
 
-        // Start background music on first interaction
+        // Start background music on first interaction (must be synchronous within gesture context)
         startBackgroundMusic();
 
-        // Trigger rotation to start playing video if current slide is a video
-        scheduleNextRotation();
+        // Using capture phase, this runs BEFORE openForm()'s onclick handler.
+        // Don't restart rotation here - openForm() will fire next and pause it anyway.
+        // closeForm() / showThankYouAndReturn() will call scheduleNextRotation() when form closes.
       }
     }
 
-    document.addEventListener('touchstart', enableVideoPlayback);
-    document.addEventListener('click', enableVideoPlayback);
+    // Use capture phase so enableVideoPlayback runs BEFORE openForm's onclick
+    document.addEventListener('touchstart', enableVideoPlayback, true);
+    document.addEventListener('click', enableVideoPlayback, true);
 
     // Initialize on load
     window.addEventListener('load', async () => {
+      // Preload audio playlist so it's ready when user interacts (preserves gesture context)
+      await loadAudioPlaylist();
+      console.log('[Init] Audio playlist preloaded, songs:', shuffledPlaylist.length);
+
       await loadImages();
       if (slides.length === 0) {
         const container = document.getElementById('slidesContainer');
