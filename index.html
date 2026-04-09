@@ -1,0 +1,449 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Hotel Chul - Guest Feedback</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: #1a1a1a;
+      overflow: hidden;
+    }
+
+    /* Slideshow Container */
+    .slideshow-container {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: #2a2a2a;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+    }
+
+    .slideshow-container.hidden {
+      display: none;
+    }
+
+    .slides {
+      position: relative;
+      width: 100%;
+      height: 85%;
+      background: linear-gradient(135deg, #3d1f2a 0%, #1a1a1a 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+    }
+
+    .slide {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      opacity: 0;
+      transition: opacity 0.8s ease-in-out;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .slide.active {
+      opacity: 1;
+    }
+
+    .slide img {
+      max-width: 90%;
+      max-height: 90%;
+      object-fit: contain;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+    }
+
+    .slide-placeholder {
+      width: 90%;
+      height: 90%;
+      background: linear-gradient(45deg, #8b3a3a 0%, #5a2a2a 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #d4af37;
+      font-size: 24px;
+      font-weight: bold;
+      border-radius: 8px;
+      text-align: center;
+      padding: 40px;
+    }
+
+    /* Header */
+    .header {
+      width: 100%;
+      padding: 20px;
+      background: linear-gradient(90deg, #6b1f2a 0%, #8b3a3a 100%);
+      text-align: center;
+      color: #d4af37;
+    }
+
+    .logo-text {
+      font-size: 36px;
+      font-weight: bold;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+    }
+
+    .tagline {
+      font-size: 14px;
+      color: #c9a961;
+      margin-top: 5px;
+      font-style: italic;
+    }
+
+    /* Feedback Button */
+    .feedback-button {
+      padding: 18px 60px;
+      font-size: 18px;
+      font-weight: bold;
+      background: linear-gradient(90deg, #d4af37 0%, #e6c956 100%);
+      color: #1a1a1a;
+      border: none;
+      border-radius: 50px;
+      cursor: pointer;
+      margin-top: 15px;
+      transition: all 0.3s ease;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      box-shadow: 0 10px 30px rgba(212, 175, 55, 0.3);
+    }
+
+    .feedback-button:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 15px 40px rgba(212, 175, 55, 0.5);
+    }
+
+    .feedback-button:active {
+      transform: translateY(-1px);
+    }
+
+    /* Form Container */
+    .form-container {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.9);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+      padding: 20px;
+    }
+
+    .form-container.visible {
+      display: flex;
+    }
+
+    .form-wrapper {
+      position: relative;
+      width: 100%;
+      max-width: 900px;
+      max-height: 90vh;
+      overflow-y: auto;
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 20px 80px rgba(0, 0, 0, 0.8);
+    }
+
+    .form-header {
+      background: linear-gradient(90deg, #6b1f2a 0%, #8b3a3a 100%);
+      color: #d4af37;
+      padding: 30px;
+      text-align: center;
+      border-radius: 12px 12px 0 0;
+    }
+
+    .form-header h1 {
+      font-size: 28px;
+      margin-bottom: 10px;
+    }
+
+    .form-header p {
+      font-size: 14px;
+      color: #c9a961;
+    }
+
+    .close-btn {
+      position: absolute;
+      top: 15px;
+      right: 15px;
+      background: #d4af37;
+      color: #1a1a1a;
+      border: none;
+      font-size: 28px;
+      width: 50px;
+      height: 50px;
+      border-radius: 50%;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 1001;
+      transition: all 0.3s ease;
+    }
+
+    .close-btn:hover {
+      background: #e6c956;
+      transform: rotate(90deg);
+    }
+
+    iframe {
+      width: 100%;
+      height: 100%;
+      border: none;
+      border-radius: 0 0 12px 12px;
+    }
+
+    /* Loading & Thank You */
+    .thank-you {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(107, 31, 42, 0.95);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 1001;
+      flex-direction: column;
+    }
+
+    .thank-you.visible {
+      display: flex;
+    }
+
+    .thank-you h2 {
+      color: #d4af37;
+      font-size: 48px;
+      margin-bottom: 20px;
+      text-align: center;
+    }
+
+    .thank-you p {
+      color: #c9a961;
+      font-size: 20px;
+      text-align: center;
+      max-width: 600px;
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      .logo-text {
+        font-size: 28px;
+      }
+
+      .feedback-button {
+        padding: 15px 40px;
+        font-size: 16px;
+      }
+
+      .form-header h1 {
+        font-size: 22px;
+      }
+
+      .thank-you h2 {
+        font-size: 36px;
+      }
+
+      .thank-you p {
+        font-size: 16px;
+      }
+    }
+
+    /* Slide Counter */
+    .slide-counter {
+      position: absolute;
+      bottom: 20px;
+      right: 30px;
+      color: rgba(212, 175, 55, 0.6);
+      font-size: 14px;
+      background: rgba(0, 0, 0, 0.3);
+      padding: 8px 15px;
+      border-radius: 20px;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Slideshow -->
+  <div class="slideshow-container" id="slideshowContainer">
+    <div class="header">
+      <div class="logo-text">🍽️ Hotel Chul</div>
+      <div class="tagline">An Exquisite Dining Experience</div>
+    </div>
+
+    <div class="slides" id="slidesContainer">
+      <div class="slide active">
+        <div class="slide-placeholder">
+          Upload Dish Photos to<br><br>./images/dish1.jpg<br>./images/dish2.jpg<br>etc.
+        </div>
+      </div>
+    </div>
+
+    <button class="feedback-button" onclick="openForm()">
+      📝 Share Your Feedback
+    </button>
+
+    <div class="slide-counter">
+      <span id="slideNumber">1</span> / <span id="totalSlides">1</span>
+    </div>
+  </div>
+
+  <!-- Form -->
+  <div class="form-container" id="formContainer">
+    <div class="form-wrapper">
+      <button class="close-btn" onclick="closeForm()">✕</button>
+      <div class="form-header">
+        <h1>Guest Feedback</h1>
+        <p>Help us serve you better</p>
+      </div>
+      <iframe
+        id="gform"
+        src="https://docs.google.com/forms/d/e/1FAIpQLSfrv9zDJxLrM3p6QKfFnWy9F-v9aQE3xLrT9rS9eQ2X8fKxlQ/viewform?embedded=true"
+        width="100%"
+        height="800px">
+      </iframe>
+    </div>
+  </div>
+
+  <!-- Thank You Message -->
+  <div class="thank-you" id="thankYou">
+    <h2>Thank You! 🙏</h2>
+    <p>Your feedback means everything to us.<br>We look forward to serving you again.</p>
+  </div>
+
+  <script>
+    const formURL = "https://docs.google.com/forms/d/e/1FAIpQLSfrv9zDJxLrM3p6QKfFnWy9F-v9aQE3xLrT9rS9eQ2X8fKxlQ/viewform?embedded=true";
+    const imageFolder = "./images/";
+    const maxSlides = 8; // Adjust if you add more images
+    let currentSlide = 0;
+    let isFormOpen = false;
+    let initialFormLoad = true;
+
+    // Load images from folder
+    function loadImages() {
+      const slidesContainer = document.getElementById('slidesContainer');
+      let loadedCount = 0;
+
+      // Try to load images 1-8 (supports both .jpg and .png)
+      for (let i = 1; i <= maxSlides; i++) {
+        const img = new Image();
+        img.src = `${imageFolder}dish${i}.png`;
+
+        img.onload = () => {
+          const slide = document.createElement('div');
+          slide.className = 'slide';
+          const imgElement = document.createElement('img');
+          imgElement.src = img.src;
+          slide.appendChild(imgElement);
+          slidesContainer.appendChild(slide);
+          loadedCount++;
+          updateSlideCounter();
+        };
+
+        // Fallback to .jpg if .png doesn't exist
+        img.onerror = () => {
+          const imgJpg = new Image();
+          imgJpg.src = `${imageFolder}dish${i}.jpg`;
+          imgJpg.onload = () => {
+            const slide = document.createElement('div');
+            slide.className = 'slide';
+            const imgElement = document.createElement('img');
+            imgElement.src = imgJpg.src;
+            slide.appendChild(imgElement);
+            slidesContainer.appendChild(slide);
+            loadedCount++;
+            updateSlideCounter();
+          };
+        };
+      }
+
+      // Update counter after a short delay (in case no images load)
+      setTimeout(updateSlideCounter, 1000);
+    }
+
+    function updateSlideCounter() {
+      const slides = document.querySelectorAll('.slide');
+      document.getElementById('totalSlides').textContent = slides.length;
+    }
+
+    // Auto-rotate slides every 5 seconds
+    function autoRotateSlides() {
+      const slides = document.querySelectorAll('.slide');
+      if (slides.length === 0) return;
+
+      setInterval(() => {
+        if (!isFormOpen) {
+          slides[currentSlide].classList.remove('active');
+          currentSlide = (currentSlide + 1) % slides.length;
+          slides[currentSlide].classList.add('active');
+          document.getElementById('slideNumber').textContent = currentSlide + 1;
+        }
+      }, 5000); // Change slide every 5 seconds
+    }
+
+    // Form handlers
+    function openForm() {
+      document.getElementById('formContainer').classList.add('visible');
+      document.getElementById('slideshowContainer').classList.add('hidden');
+      isFormOpen = true;
+    }
+
+    function closeForm() {
+      document.getElementById('formContainer').classList.remove('visible');
+      document.getElementById('slideshowContainer').classList.remove('hidden');
+      isFormOpen = false;
+      // Reset iframe
+      document.getElementById('gform').src = formURL;
+      initialFormLoad = true;
+    }
+
+    // Detect form submission via iframe load event
+    const iframe = document.getElementById('gform');
+    iframe.addEventListener('load', function () {
+      if (initialFormLoad) {
+        initialFormLoad = false;
+        return;
+      }
+      // Form was submitted
+      const thankYou = document.getElementById('thankYou');
+      const formContainer = document.getElementById('formContainer');
+      const slideshow = document.getElementById('slideshowContainer');
+
+      thankYou.classList.add('visible');
+      formContainer.classList.remove('visible');
+
+      setTimeout(() => {
+        thankYou.classList.remove('visible');
+        slideshow.classList.remove('hidden');
+        isFormOpen = false;
+        document.getElementById('gform').src = formURL;
+        initialFormLoad = true;
+      }, 2500);
+    });
+
+    // Initialize
+    loadImages();
+    autoRotateSlides();
+  </script>
+
+</body>
+</html>
