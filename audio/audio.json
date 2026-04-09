@@ -1,0 +1,13 @@
+{
+  "audio": [
+    {
+      "name": "song1.mp3"
+    },
+    {
+      "name": "song2.mp3"
+    },
+    {
+      "name": "song3.mp3"
+    }
+  ]
+}
