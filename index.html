@@ -17,29 +17,29 @@
       overflow: hidden;
     }
 
-    /* Slideshow Container */
+    /* Slideshow Container - Full Screen */
     .slideshow-container {
       position: fixed;
       top: 0;
       left: 0;
       width: 100%;
       height: 100%;
-      background: #2a2a2a;
+      background: #000;
       display: flex;
       align-items: center;
       justify-content: center;
-      flex-direction: column;
+      cursor: pointer;
+      z-index: 100;
     }
 
     .slideshow-container.hidden {
       display: none;
     }
 
-    .slides {
+    .slides-wrapper {
       position: relative;
       width: 100%;
-      height: 85%;
-      background: linear-gradient(135deg, #3d1f2a 0%, #1a1a1a 100%);
+      height: 100%;
       display: flex;
       align-items: center;
       justify-content: center;
@@ -55,6 +55,7 @@
       display: flex;
       align-items: center;
       justify-content: center;
+      background: #000;
     }
 
     .slide.active {
@@ -62,117 +63,85 @@
     }
 
     .slide img {
-      max-width: 90%;
-      max-height: 90%;
+      max-width: 95%;
+      max-height: 95%;
       object-fit: contain;
-      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
     }
 
-    .slide-placeholder {
-      width: 90%;
-      height: 90%;
-      background: linear-gradient(45deg, #8b3a3a 0%, #5a2a2a 100%);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      color: #d4af37;
-      font-size: 24px;
-      font-weight: bold;
-      border-radius: 8px;
-      text-align: center;
-      padding: 40px;
-    }
-
-    /* Header */
-    .header {
-      width: 100%;
-      padding: 20px;
-      background: linear-gradient(90deg, #6b1f2a 0%, #8b3a3a 100%);
-      text-align: center;
-      color: #d4af37;
-    }
-
-    .logo-text {
-      font-size: 36px;
-      font-weight: bold;
-      letter-spacing: 2px;
-      text-transform: uppercase;
-    }
-
-    .tagline {
-      font-size: 14px;
-      color: #c9a961;
-      margin-top: 5px;
-      font-style: italic;
-    }
-
-    /* Feedback Button */
-    .feedback-button {
-      padding: 18px 60px;
+    /* Tap to Feedback Overlay */
+    .tap-overlay {
+      position: absolute;
+      bottom: 40px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(212, 175, 55, 0.9);
+      color: #1a1a1a;
+      padding: 15px 40px;
+      border-radius: 50px;
       font-size: 18px;
       font-weight: bold;
-      background: linear-gradient(90deg, #d4af37 0%, #e6c956 100%);
-      color: #1a1a1a;
-      border: none;
-      border-radius: 50px;
-      cursor: pointer;
-      margin-top: 15px;
-      transition: all 0.3s ease;
-      text-transform: uppercase;
-      letter-spacing: 1px;
-      box-shadow: 0 10px 30px rgba(212, 175, 55, 0.3);
+      text-align: center;
+      animation: pulse 2s infinite;
+      z-index: 10;
     }
 
-    .feedback-button:hover {
-      transform: translateY(-3px);
-      box-shadow: 0 15px 40px rgba(212, 175, 55, 0.5);
+    @keyframes pulse {
+      0%, 100% { opacity: 0.8; }
+      50% { opacity: 1; }
     }
 
-    .feedback-button:active {
-      transform: translateY(-1px);
+    .slide-counter {
+      position: absolute;
+      top: 20px;
+      right: 30px;
+      color: rgba(212, 175, 55, 0.7);
+      font-size: 16px;
+      background: rgba(0, 0, 0, 0.5);
+      padding: 10px 20px;
+      border-radius: 20px;
+      z-index: 10;
     }
 
-    /* Form Container */
-    .form-container {
+    /* Form Modal */
+    .form-modal {
       position: fixed;
       top: 0;
       left: 0;
       width: 100%;
       height: 100%;
-      background: rgba(0, 0, 0, 0.9);
+      background: rgba(0, 0, 0, 0.95);
       display: none;
       align-items: center;
       justify-content: center;
-      z-index: 1000;
+      z-index: 200;
       padding: 20px;
     }
 
-    .form-container.visible {
+    .form-modal.visible {
       display: flex;
     }
 
-    .form-wrapper {
+    .form-box {
       position: relative;
       width: 100%;
       max-width: 900px;
       max-height: 90vh;
-      overflow-y: auto;
       background: white;
       border-radius: 12px;
+      overflow: hidden;
       box-shadow: 0 20px 80px rgba(0, 0, 0, 0.8);
     }
 
     .form-header {
       background: linear-gradient(90deg, #6b1f2a 0%, #8b3a3a 100%);
       color: #d4af37;
-      padding: 30px;
+      padding: 25px;
       text-align: center;
-      border-radius: 12px 12px 0 0;
     }
 
     .form-header h1 {
       font-size: 28px;
-      margin-bottom: 10px;
+      margin-bottom: 5px;
     }
 
     .form-header p {
@@ -187,16 +156,16 @@
       background: #d4af37;
       color: #1a1a1a;
       border: none;
-      font-size: 28px;
+      font-size: 32px;
       width: 50px;
       height: 50px;
       border-radius: 50%;
       cursor: pointer;
+      z-index: 300;
+      transition: all 0.3s ease;
       display: flex;
       align-items: center;
       justify-content: center;
-      z-index: 1001;
-      transition: all 0.3s ease;
     }
 
     .close-btn:hover {
@@ -206,23 +175,22 @@
 
     iframe {
       width: 100%;
-      height: 100%;
+      height: calc(90vh - 90px);
       border: none;
-      border-radius: 0 0 12px 12px;
     }
 
-    /* Loading & Thank You */
+    /* Thank You Screen */
     .thank-you {
       position: fixed;
       top: 0;
       left: 0;
       width: 100%;
       height: 100%;
-      background: rgba(107, 31, 42, 0.95);
+      background: linear-gradient(135deg, #6b1f2a 0%, #3d1f2a 100%);
       display: none;
       align-items: center;
       justify-content: center;
-      z-index: 1001;
+      z-index: 250;
       flex-direction: column;
     }
 
@@ -230,86 +198,40 @@
       display: flex;
     }
 
-    .thank-you h2 {
-      color: #d4af37;
-      font-size: 48px;
-      margin-bottom: 20px;
+    .thank-you-content {
       text-align: center;
+      color: #d4af37;
+    }
+
+    .thank-you h2 {
+      font-size: 56px;
+      margin-bottom: 20px;
     }
 
     .thank-you p {
+      font-size: 24px;
       color: #c9a961;
-      font-size: 20px;
-      text-align: center;
       max-width: 600px;
-    }
-
-    /* Responsive */
-    @media (max-width: 768px) {
-      .logo-text {
-        font-size: 28px;
-      }
-
-      .feedback-button {
-        padding: 15px 40px;
-        font-size: 16px;
-      }
-
-      .form-header h1 {
-        font-size: 22px;
-      }
-
-      .thank-you h2 {
-        font-size: 36px;
-      }
-
-      .thank-you p {
-        font-size: 16px;
-      }
-    }
-
-    /* Slide Counter */
-    .slide-counter {
-      position: absolute;
-      bottom: 20px;
-      right: 30px;
-      color: rgba(212, 175, 55, 0.6);
-      font-size: 14px;
-      background: rgba(0, 0, 0, 0.3);
-      padding: 8px 15px;
-      border-radius: 20px;
+      line-height: 1.6;
     }
   </style>
 </head>
 <body>
 
-  <!-- Slideshow -->
-  <div class="slideshow-container" id="slideshowContainer">
-    <div class="header">
-      <div class="logo-text">🍽️ Hotel Chul</div>
-      <div class="tagline">An Exquisite Dining Experience</div>
+  <!-- Full Screen Slideshow -->
+  <div class="slideshow-container" id="slideshowContainer" onclick="openForm()">
+    <div class="slides-wrapper" id="slidesContainer">
+      <!-- Slides will be loaded here -->
     </div>
-
-    <div class="slides" id="slidesContainer">
-      <div class="slide active">
-        <div class="slide-placeholder">
-          Upload Dish Photos to<br><br>./images/dish1.jpg<br>./images/dish2.jpg<br>etc.
-        </div>
-      </div>
-    </div>
-
-    <button class="feedback-button" onclick="openForm()">
-      📝 Share Your Feedback
-    </button>
-
+    <div class="tap-overlay">👆 TAP TO SHARE FEEDBACK</div>
     <div class="slide-counter">
       <span id="slideNumber">1</span> / <span id="totalSlides">1</span>
     </div>
   </div>
 
-  <!-- Form -->
-  <div class="form-container" id="formContainer">
-    <div class="form-wrapper">
+  <!-- Feedback Form Modal -->
+  <div class="form-modal" id="formModal">
+    <div class="form-box">
       <button class="close-btn" onclick="closeForm()">✕</button>
       <div class="form-header">
         <h1>Guest Feedback</h1>
@@ -317,132 +239,126 @@
       </div>
       <iframe
         id="gform"
-        src="https://docs.google.com/forms/d/e/1FAIpQLSfrv9zDJxLrM3p6QKfFnWy9F-v9aQE3xLrT9rS9eQ2X8fKxlQ/viewform?embedded=true"
-        width="100%"
-        height="800px">
+        src="https://docs.google.com/forms/d/e/1FAIpQLSfrv9zDJxLrM3p6QKfFnWy9F-v9aQE3xLrT9rS9eQ2X8fKxlQ/viewform?embedded=true">
       </iframe>
     </div>
   </div>
 
-  <!-- Thank You Message -->
-  <div class="thank-you" id="thankYou">
-    <h2>Thank You! 🙏</h2>
-    <p>Your feedback means everything to us.<br>We look forward to serving you again.</p>
+  <!-- Thank You Screen -->
+  <div class="thank-you" id="thankYouScreen">
+    <div class="thank-you-content">
+      <h2>🙏 Thank You!</h2>
+      <p>Your feedback means everything to us.<br>We look forward to serving you again.</p>
+    </div>
   </div>
 
   <script>
     const formURL = "https://docs.google.com/forms/d/e/1FAIpQLSfrv9zDJxLrM3p6QKfFnWy9F-v9aQE3xLrT9rS9eQ2X8fKxlQ/viewform?embedded=true";
-    const imageFolder = "/restaurant-kiosk/images/";
-    const maxSlides = 8; // Adjust if you add more images
+    const imageFolder = "images/";
     let currentSlide = 0;
     let isFormOpen = false;
     let initialFormLoad = true;
+    let slides = [];
 
-    // Load images from folder
+    // Load images dynamically
     function loadImages() {
-      const slidesContainer = document.getElementById('slidesContainer');
-      let loadedCount = 0;
+      const container = document.getElementById('slidesContainer');
 
-      // Try to load images 1-8 (supports both .jpg and .png)
-      for (let i = 1; i <= maxSlides; i++) {
-        const img = new Image();
-        img.src = `${imageFolder}dish${i}.png`;
+      // Load dish1 through dish8
+      const imageNames = [
+        'dish1.png', 'dish2.png', 'dish3.png', 'dish4.png',
+        'dish5.png', 'dish6.png', 'dish7.png', 'dish8.png'
+      ];
 
-        img.onload = () => {
-          const slide = document.createElement('div');
-          slide.className = 'slide';
-          const imgElement = document.createElement('img');
-          imgElement.src = img.src;
-          slide.appendChild(imgElement);
-          slidesContainer.appendChild(slide);
-          loadedCount++;
-          updateSlideCounter();
-        };
+      imageNames.forEach((imageName) => {
+        const slide = document.createElement('div');
+        slide.className = 'slide';
 
-        // Fallback to .jpg if .png doesn't exist
+        const img = document.createElement('img');
+        img.src = imageFolder + imageName;
         img.onerror = () => {
-          const imgJpg = new Image();
-          imgJpg.src = `${imageFolder}dish${i}.jpg`;
-          imgJpg.onload = () => {
-            const slide = document.createElement('div');
-            slide.className = 'slide';
-            const imgElement = document.createElement('img');
-            imgElement.src = imgJpg.src;
-            slide.appendChild(imgElement);
-            slidesContainer.appendChild(slide);
-            loadedCount++;
-            updateSlideCounter();
-          };
+          // Try .jpg if .png fails
+          img.src = imageFolder + imageName.replace('.png', '.jpg');
         };
-      }
 
-      // Update counter after a short delay (in case no images load)
-      setTimeout(updateSlideCounter, 1000);
-    }
+        slide.appendChild(img);
+        container.appendChild(slide);
+      });
 
-    function updateSlideCounter() {
-      const slides = document.querySelectorAll('.slide');
-      document.getElementById('totalSlides').textContent = slides.length;
+      slides = document.querySelectorAll('.slide');
+
+      // Filter out broken images and show only loaded ones
+      setTimeout(() => {
+        const loadedSlides = Array.from(slides).filter(slide => {
+          const img = slide.querySelector('img');
+          return img && img.naturalHeight > 0;
+        });
+
+        if (loadedSlides.length > 0) {
+          slides.forEach(s => s.classList.remove('active'));
+          loadedSlides[0].classList.add('active');
+          currentSlide = 0;
+          document.getElementById('totalSlides').textContent = loadedSlides.length;
+        }
+      }, 1500);
     }
 
     // Auto-rotate slides every 5 seconds
     function autoRotateSlides() {
-      const slides = document.querySelectorAll('.slide');
-      if (slides.length === 0) return;
-
       setInterval(() => {
-        if (!isFormOpen) {
+        if (!isFormOpen && slides.length > 0) {
           slides[currentSlide].classList.remove('active');
           currentSlide = (currentSlide + 1) % slides.length;
           slides[currentSlide].classList.add('active');
           document.getElementById('slideNumber').textContent = currentSlide + 1;
         }
-      }, 5000); // Change slide every 5 seconds
+      }, 5000);
     }
 
-    // Form handlers
+    // Open form modal
     function openForm() {
-      document.getElementById('formContainer').classList.add('visible');
-      document.getElementById('slideshowContainer').classList.add('hidden');
+      if (isFormOpen) return;
       isFormOpen = true;
+      document.getElementById('formModal').classList.add('visible');
+      document.getElementById('slideshowContainer').style.pointerEvents = 'none';
     }
 
+    // Close form modal
     function closeForm() {
-      document.getElementById('formContainer').classList.remove('visible');
-      document.getElementById('slideshowContainer').classList.remove('hidden');
+      document.getElementById('formModal').classList.remove('visible');
+      document.getElementById('slideshowContainer').style.pointerEvents = 'auto';
       isFormOpen = false;
-      // Reset iframe
+      // Reset form
       document.getElementById('gform').src = formURL;
       initialFormLoad = true;
     }
 
-    // Detect form submission via iframe load event
-    const iframe = document.getElementById('gform');
-    iframe.addEventListener('load', function () {
+    // Detect form submission
+    document.getElementById('gform').addEventListener('load', function () {
       if (initialFormLoad) {
         initialFormLoad = false;
         return;
       }
-      // Form was submitted
-      const thankYou = document.getElementById('thankYou');
-      const formContainer = document.getElementById('formContainer');
-      const slideshow = document.getElementById('slideshowContainer');
 
-      thankYou.classList.add('visible');
-      formContainer.classList.remove('visible');
+      // Form submitted - show thank you
+      document.getElementById('formModal').classList.remove('visible');
+      document.getElementById('thankYouScreen').classList.add('visible');
 
+      // Return to slideshow after 4-5 seconds
       setTimeout(() => {
-        thankYou.classList.remove('visible');
-        slideshow.classList.remove('hidden');
+        document.getElementById('thankYouScreen').classList.remove('visible');
+        document.getElementById('slideshowContainer').style.pointerEvents = 'auto';
         isFormOpen = false;
         document.getElementById('gform').src = formURL;
         initialFormLoad = true;
-      }, 2500);
+      }, 4500);
     });
 
-    // Initialize
-    loadImages();
-    autoRotateSlides();
+    // Initialize on load
+    window.addEventListener('load', () => {
+      loadImages();
+      autoRotateSlides();
+    });
   </script>
 
 </body>
