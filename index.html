@@ -445,6 +445,7 @@
 
     // Schedule next slide rotation (images every 5s, videos after they end)
     let rotationTimeout = null;
+    let videoPlayTimeout = null;
 
     function scheduleNextRotation() {
       if (rotationTimeout) {
@@ -477,6 +478,10 @@
         const handleVideoEnd = () => {
           console.log('Video ended, advancing to next slide');
           video.removeEventListener('ended', handleVideoEnd);
+          if (videoPlayTimeout) {
+            clearTimeout(videoPlayTimeout);
+            videoPlayTimeout = null;
+          }
           // Restore background music volume
           restoreBackgroundMusic();
           advanceSlide();
@@ -485,13 +490,28 @@
 
         video.addEventListener('ended', handleVideoEnd, { once: true });
 
+        // Safety timeout: if video doesn't finish within expected time + buffer, skip it
+        // Get video duration if available, or use fallback
+        let skipTimeout = 30000; // 30 second fallback timeout
+        if (video.duration && video.duration > 0) {
+          skipTimeout = (video.duration + 5) * 1000; // Video duration + 5 second buffer
+        }
+
+        videoPlayTimeout = setTimeout(() => {
+          console.log('Video playback timeout - no ended event received, skipping to next slide');
+          video.removeEventListener('ended', handleVideoEnd);
+          restoreBackgroundMusic();
+          advanceSlide();
+          scheduleNextRotation();
+        }, skipTimeout);
+
         // Explicitly play the video
         video.muted = true; // Keep muted for autoplay permission
         const playPromise = video.play();
         if (playPromise !== undefined) {
           playPromise
             .then(() => {
-              console.log('Video playing');
+              console.log('Video playing:', video.src);
               // Duck background music volume
               duckBackgroundMusic();
               // Unmute once it starts
@@ -503,6 +523,12 @@
             .catch(err => {
               console.log('Video play failed:', err);
               // If play fails, skip to next slide
+              if (videoPlayTimeout) {
+                clearTimeout(videoPlayTimeout);
+                videoPlayTimeout = null;
+              }
+              video.removeEventListener('ended', handleVideoEnd);
+              restoreBackgroundMusic();
               advanceSlide();
               scheduleNextRotation();
             });
