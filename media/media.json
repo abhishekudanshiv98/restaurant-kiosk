@@ -1,0 +1,32 @@
+{
+  "media": [
+    {
+      "name": "dish1.png",
+      "type": "image"
+    },
+    {
+      "name": "dish2.png",
+      "type": "image"
+    },
+    {
+      "name": "dish3.png",
+      "type": "image"
+    },
+    {
+      "name": "dish4.png",
+      "type": "image"
+    },
+    {
+      "name": "dish5.png",
+      "type": "image"
+    },
+    {
+      "name": "dish6.png",
+      "type": "image"
+    },
+    {
+      "name": "dish7.png",
+      "type": "image"
+    }
+  ]
+}
