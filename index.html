@@ -328,6 +328,336 @@
       max-width: 600px;
       line-height: 1.6;
     }
+
+    /* Admin Settings Gear Icon */
+    .settings-gear {
+      position: fixed;
+      bottom: 15px;
+      left: 15px;
+      width: 40px;
+      height: 40px;
+      background: rgba(0, 0, 0, 0.3);
+      border: none;
+      border-radius: 50%;
+      color: rgba(255, 255, 255, 0.25);
+      font-size: 22px;
+      cursor: pointer;
+      z-index: 150;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.3s ease;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    .settings-gear:hover {
+      background: rgba(0, 0, 0, 0.6);
+      color: rgba(212, 175, 55, 0.8);
+    }
+
+    /* PIN Overlay */
+    .pin-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.92);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 500;
+    }
+
+    .pin-overlay.visible {
+      display: flex;
+    }
+
+    .pin-box {
+      background: linear-gradient(135deg, #6b1f2a 0%, #4a1520 100%);
+      border: 2px solid #d4af37;
+      border-radius: 16px;
+      padding: 40px 35px;
+      text-align: center;
+      max-width: 340px;
+      width: 90%;
+    }
+
+    .pin-box h3 {
+      color: #d4af37;
+      font-size: 22px;
+      margin-bottom: 8px;
+    }
+
+    .pin-box p {
+      color: #c9a961;
+      font-size: 14px;
+      margin-bottom: 20px;
+    }
+
+    .pin-input {
+      width: 160px;
+      padding: 12px 16px;
+      font-size: 28px;
+      text-align: center;
+      letter-spacing: 10px;
+      border: 2px solid #d4af37;
+      border-radius: 8px;
+      background: rgba(0, 0, 0, 0.4);
+      color: #d4af37;
+      outline: none;
+      -webkit-text-security: disc;
+    }
+
+    .pin-input::placeholder {
+      letter-spacing: 4px;
+      font-size: 16px;
+      color: rgba(212, 175, 55, 0.4);
+    }
+
+    .pin-error {
+      color: #ff6b6b;
+      font-size: 13px;
+      margin-top: 10px;
+      min-height: 20px;
+    }
+
+    .pin-buttons {
+      margin-top: 18px;
+      display: flex;
+      gap: 10px;
+      justify-content: center;
+    }
+
+    .pin-btn {
+      padding: 10px 24px;
+      border: none;
+      border-radius: 8px;
+      font-size: 15px;
+      font-weight: bold;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .pin-btn-submit {
+      background: #d4af37;
+      color: #1a1a1a;
+    }
+
+    .pin-btn-submit:hover {
+      background: #e6c956;
+    }
+
+    .pin-btn-cancel {
+      background: rgba(255, 255, 255, 0.15);
+      color: #c9a961;
+    }
+
+    .pin-btn-cancel:hover {
+      background: rgba(255, 255, 255, 0.25);
+    }
+
+    /* Settings Modal */
+    .settings-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.92);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 500;
+    }
+
+    .settings-overlay.visible {
+      display: flex;
+    }
+
+    .settings-panel {
+      background: linear-gradient(135deg, #6b1f2a 0%, #4a1520 100%);
+      border: 2px solid #d4af37;
+      border-radius: 16px;
+      width: 90%;
+      max-width: 440px;
+      max-height: 85vh;
+      overflow-y: auto;
+      position: relative;
+    }
+
+    .settings-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 20px 24px;
+      border-bottom: 1px solid rgba(212, 175, 55, 0.3);
+    }
+
+    .settings-header h2 {
+      color: #d4af37;
+      font-size: 22px;
+      margin: 0;
+    }
+
+    .settings-close {
+      background: rgba(212, 175, 55, 0.2);
+      border: 1px solid #d4af37;
+      color: #d4af37;
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      font-size: 20px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s ease;
+    }
+
+    .settings-close:hover {
+      background: #d4af37;
+      color: #1a1a1a;
+    }
+
+    .settings-body {
+      padding: 20px 24px;
+    }
+
+    .settings-section {
+      margin-bottom: 24px;
+    }
+
+    .settings-section:last-child {
+      margin-bottom: 0;
+    }
+
+    .settings-section h3 {
+      color: #d4af37;
+      font-size: 16px;
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .settings-section h3 .section-icon {
+      font-size: 18px;
+    }
+
+    .setting-item {
+      display: flex;
+      align-items: center;
+      padding: 10px 14px;
+      background: rgba(0, 0, 0, 0.25);
+      border-radius: 8px;
+      margin-bottom: 8px;
+      cursor: pointer;
+      transition: background 0.2s ease;
+    }
+
+    .setting-item:hover {
+      background: rgba(0, 0, 0, 0.4);
+    }
+
+    .setting-item:last-child {
+      margin-bottom: 0;
+    }
+
+    .setting-item label {
+      color: #e8d5b7;
+      font-size: 14px;
+      cursor: pointer;
+      flex: 1;
+      margin-left: 10px;
+      user-select: none;
+    }
+
+    /* Custom checkbox */
+    .setting-item input[type="checkbox"] {
+      appearance: none;
+      -webkit-appearance: none;
+      width: 22px;
+      height: 22px;
+      border: 2px solid #d4af37;
+      border-radius: 4px;
+      background: rgba(0, 0, 0, 0.3);
+      cursor: pointer;
+      position: relative;
+      flex-shrink: 0;
+    }
+
+    .setting-item input[type="checkbox"]:checked {
+      background: #d4af37;
+    }
+
+    .setting-item input[type="checkbox"]:checked::after {
+      content: '\2713';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      color: #1a1a1a;
+      font-size: 14px;
+      font-weight: bold;
+    }
+
+    .settings-footer {
+      padding: 16px 24px;
+      border-top: 1px solid rgba(212, 175, 55, 0.3);
+      display: flex;
+      gap: 10px;
+      justify-content: flex-end;
+    }
+
+    .settings-btn {
+      padding: 11px 28px;
+      border: none;
+      border-radius: 8px;
+      font-size: 15px;
+      font-weight: bold;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .settings-btn-save {
+      background: #d4af37;
+      color: #1a1a1a;
+    }
+
+    .settings-btn-save:hover {
+      background: #e6c956;
+    }
+
+    .settings-btn-cancel {
+      background: rgba(255, 255, 255, 0.15);
+      color: #c9a961;
+    }
+
+    .settings-btn-cancel:hover {
+      background: rgba(255, 255, 255, 0.25);
+    }
+
+    .settings-note {
+      color: rgba(201, 169, 97, 0.6);
+      font-size: 12px;
+      margin-top: 6px;
+      padding-left: 14px;
+    }
+
+    /* Scrollbar styling for settings panel */
+    .settings-panel::-webkit-scrollbar {
+      width: 6px;
+    }
+
+    .settings-panel::-webkit-scrollbar-track {
+      background: rgba(0, 0, 0, 0.2);
+    }
+
+    .settings-panel::-webkit-scrollbar-thumb {
+      background: rgba(212, 175, 55, 0.4);
+      border-radius: 3px;
+    }
   </style>
 </head>
 <body>
@@ -368,6 +698,56 @@
     <div class="thank-you-content">
       <h2>🙏 Thank You!</h2>
       <p>Your feedback means everything to us.<br>We look forward to serving you again.</p>
+    </div>
+  </div>
+
+  <!-- Admin Settings Gear Icon -->
+  <button class="settings-gear" id="settingsGear" onclick="openPinPrompt(event)">&#9881;</button>
+
+  <!-- PIN Prompt Overlay -->
+  <div class="pin-overlay" id="pinOverlay">
+    <div class="pin-box">
+      <h3>Admin Access</h3>
+      <p>Enter PIN to access settings</p>
+      <input type="tel" class="pin-input" id="pinInput" maxlength="4" placeholder="----" autocomplete="off">
+      <div class="pin-error" id="pinError"></div>
+      <div class="pin-buttons">
+        <button class="pin-btn pin-btn-cancel" onclick="closePinPrompt()">Cancel</button>
+        <button class="pin-btn pin-btn-submit" onclick="submitPin()">Unlock</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Admin Settings Modal -->
+  <div class="settings-overlay" id="settingsOverlay">
+    <div class="settings-panel">
+      <div class="settings-header">
+        <h2>Admin Settings</h2>
+        <button class="settings-close" onclick="closeSettings()">&#10005;</button>
+      </div>
+      <div class="settings-body">
+        <!-- Song Selection -->
+        <div class="settings-section">
+          <h3><span class="section-icon">&#9835;</span> Song Selection</h3>
+          <div id="songCheckboxes">
+            <!-- Populated dynamically -->
+          </div>
+          <div class="settings-note">At least one song must be selected.</div>
+        </div>
+        <!-- Video Toggle -->
+        <div class="settings-section">
+          <h3><span class="section-icon">&#9654;</span> Video Playback</h3>
+          <div class="setting-item" onclick="toggleCheckbox('enableVideos')">
+            <input type="checkbox" id="enableVideos" checked>
+            <label for="enableVideos">Enable Videos</label>
+          </div>
+          <div class="settings-note">When disabled, only images will be shown in the slideshow.</div>
+        </div>
+      </div>
+      <div class="settings-footer">
+        <button class="settings-btn settings-btn-cancel" onclick="closeSettings()">Cancel</button>
+        <button class="settings-btn settings-btn-save" onclick="saveSettings()">Save &amp; Apply</button>
+      </div>
     </div>
   </div>
 
@@ -976,16 +1356,255 @@
       console.log('[Music] Preloading first song audio data:', firstSong);
     }
 
+    // ==========================================
+    // Admin Settings Panel
+    // ==========================================
+    const ADMIN_PIN = '1234';
+    let adminSettings = {
+      enabledSongs: [], // empty = all enabled (populated after audio manifest loads)
+      enableVideos: true
+    };
+
+    // Load settings from localStorage
+    function loadAdminSettings() {
+      try {
+        const saved = localStorage.getItem('kioskAdminSettings');
+        if (saved) {
+          const parsed = JSON.parse(saved);
+          if (parsed.enabledSongs && Array.isArray(parsed.enabledSongs)) {
+            adminSettings.enabledSongs = parsed.enabledSongs;
+          }
+          if (typeof parsed.enableVideos === 'boolean') {
+            adminSettings.enableVideos = parsed.enableVideos;
+          }
+          console.log('[Settings] Loaded from localStorage:', adminSettings);
+        }
+      } catch (e) {
+        console.warn('[Settings] Failed to load settings:', e);
+      }
+    }
+
+    // Save settings to localStorage
+    function saveAdminSettingsToStorage() {
+      try {
+        localStorage.setItem('kioskAdminSettings', JSON.stringify(adminSettings));
+        console.log('[Settings] Saved to localStorage:', adminSettings);
+      } catch (e) {
+        console.warn('[Settings] Failed to save settings:', e);
+      }
+    }
+
+    // Helper to toggle checkbox when clicking the setting-item row
+    function toggleCheckbox(id) {
+      const cb = document.getElementById(id);
+      if (cb) cb.checked = !cb.checked;
+    }
+
+    // PIN prompt
+    function openPinPrompt(event) {
+      event.stopPropagation(); // Don't trigger slideshow click
+      document.getElementById('pinOverlay').classList.add('visible');
+      document.getElementById('pinInput').value = '';
+      document.getElementById('pinError').textContent = '';
+      setTimeout(() => document.getElementById('pinInput').focus(), 100);
+    }
+
+    function closePinPrompt() {
+      document.getElementById('pinOverlay').classList.remove('visible');
+      document.getElementById('pinInput').value = '';
+      document.getElementById('pinError').textContent = '';
+    }
+
+    function submitPin() {
+      const input = document.getElementById('pinInput').value;
+      if (input === ADMIN_PIN) {
+        closePinPrompt();
+        openSettings();
+      } else {
+        document.getElementById('pinError').textContent = 'Incorrect PIN. Try again.';
+        document.getElementById('pinInput').value = '';
+        document.getElementById('pinInput').focus();
+      }
+    }
+
+    // Allow Enter key to submit PIN
+    document.getElementById('pinInput').addEventListener('keydown', function(e) {
+      if (e.key === 'Enter') submitPin();
+      if (e.key === 'Escape') closePinPrompt();
+    });
+
+    // Prevent clicks on overlays from bubbling to slideshow
+    document.getElementById('pinOverlay').addEventListener('click', function(e) { e.stopPropagation(); });
+    document.getElementById('settingsOverlay').addEventListener('click', function(e) { e.stopPropagation(); });
+
+    // Populate song checkboxes from the loaded audio playlist
+    function populateSongCheckboxes() {
+      const container = document.getElementById('songCheckboxes');
+      container.innerHTML = '';
+
+      // Use the raw audioPlaylist (full paths like 'audio/song1.mp3')
+      const allSongs = audioPlaylist.map(path => {
+        const name = path.split('/').pop(); // e.g. 'song1.mp3'
+        return { path, name };
+      });
+
+      if (allSongs.length === 0) {
+        container.innerHTML = '<div style="color: #c9a961; font-size: 13px; padding: 10px;">No songs found in playlist.</div>';
+        return;
+      }
+
+      allSongs.forEach((song, idx) => {
+        const isEnabled = adminSettings.enabledSongs.length === 0 || adminSettings.enabledSongs.includes(song.name);
+        const item = document.createElement('div');
+        item.className = 'setting-item';
+        item.onclick = function() { toggleCheckbox('song_' + idx); };
+        item.innerHTML =
+          '<input type="checkbox" id="song_' + idx + '" data-song-name="' + song.name + '"' + (isEnabled ? ' checked' : '') + '>' +
+          '<label for="song_' + idx + '">' + song.name + '</label>';
+        container.appendChild(item);
+      });
+    }
+
+    // Open settings modal
+    function openSettings() {
+      populateSongCheckboxes();
+      document.getElementById('enableVideos').checked = adminSettings.enableVideos;
+      document.getElementById('settingsOverlay').classList.add('visible');
+    }
+
+    // Close settings modal without saving
+    function closeSettings() {
+      document.getElementById('settingsOverlay').classList.remove('visible');
+    }
+
+    // Save settings and apply them
+    function saveSettings() {
+      // Gather selected songs
+      const songCheckboxes = document.querySelectorAll('#songCheckboxes input[type="checkbox"]');
+      const selectedSongs = [];
+      songCheckboxes.forEach(cb => {
+        if (cb.checked) {
+          selectedSongs.push(cb.getAttribute('data-song-name'));
+        }
+      });
+
+      // Enforce at least 1 song selected
+      if (selectedSongs.length === 0) {
+        alert('At least one song must be selected.');
+        return;
+      }
+
+      // Apply song selection
+      adminSettings.enabledSongs = selectedSongs;
+
+      // Apply video toggle
+      adminSettings.enableVideos = document.getElementById('enableVideos').checked;
+
+      // Persist
+      saveAdminSettingsToStorage();
+
+      // Apply changes to running carousel
+      applyAdminSettings();
+
+      closeSettings();
+      console.log('[Settings] Settings saved and applied:', adminSettings);
+    }
+
+    // Apply admin settings to the running carousel
+    function applyAdminSettings() {
+      // Re-shuffle playlist with only enabled songs
+      applyEnabledSongsFilter();
+
+      // Re-filter slides if videos are toggled
+      applyVideoToggle();
+    }
+
+    // Filter audio playlist to only enabled songs, then re-shuffle
+    function applyEnabledSongsFilter() {
+      if (adminSettings.enabledSongs.length === 0) {
+        // All songs enabled (no filter saved yet)
+        shufflePlaylistForToday();
+      } else {
+        // Filter audioPlaylist to only enabled songs
+        const filtered = audioPlaylist.filter(path => {
+          const name = path.split('/').pop();
+          return adminSettings.enabledSongs.includes(name);
+        });
+        if (filtered.length > 0) {
+          // Temporarily replace audioPlaylist for shuffle, then restore
+          const originalPlaylist = audioPlaylist;
+          audioPlaylist = filtered;
+          shufflePlaylistForToday();
+          audioPlaylist = originalPlaylist; // Restore full list for settings UI
+        }
+      }
+
+      // If music is currently playing, restart with new playlist
+      if (backgroundMusic && !backgroundMusic.paused) {
+        currentSongIndex = 0;
+        playNextSong();
+      }
+    }
+
+    // Show/hide video slides based on enableVideos setting
+    function applyVideoToggle() {
+      // We need to rebuild the slides array to include/exclude videos
+      const allSlideElements = document.querySelectorAll('#slidesContainer .slide');
+      let visibleIndex = 0;
+
+      allSlideElements.forEach(slide => {
+        const hasVideo = slide.querySelector('video') !== null;
+        if (hasVideo && !adminSettings.enableVideos) {
+          slide.style.display = 'none';
+          slide.classList.remove('active');
+        } else {
+          slide.style.display = '';
+        }
+      });
+
+      // Rebuild the slides NodeList to only include visible slides
+      slides = document.querySelectorAll('#slidesContainer .slide:not([style*="display: none"])');
+
+      if (slides.length > 0) {
+        // Make sure there's an active slide
+        const hasActive = Array.from(slides).some(s => s.classList.contains('active'));
+        if (!hasActive) {
+          currentSlide = 0;
+          slides[0].classList.add('active');
+        } else {
+          // Find index of currently active slide in new filtered set
+          currentSlide = Array.from(slides).findIndex(s => s.classList.contains('active'));
+          if (currentSlide === -1) currentSlide = 0;
+        }
+        document.getElementById('totalSlides').textContent = slides.length;
+        document.getElementById('slideNumber').textContent = currentSlide + 1;
+      }
+
+      // Restart rotation with new slide set
+      scheduleNextRotation();
+    }
+
     // Initialize on load
     window.addEventListener('load', async () => {
+      // Load admin settings from localStorage first
+      loadAdminSettings();
       // Preload audio playlist so it's ready when user interacts (preserves gesture context)
       await loadAudioPlaylist();
       console.log('[Init] Audio playlist preloaded, songs:', shuffledPlaylist.length);
+
+      // Apply enabled songs filter from admin settings (filters out unchecked songs)
+      applyEnabledSongsFilter();
 
       // Preload the first song's audio data so it's buffered and ready for instant playback on first tap
       preloadFirstSong();
 
       await loadImages();
+
+      // Apply video toggle from admin settings (hides video slides if disabled)
+      if (!adminSettings.enableVideos) {
+        applyVideoToggle();
+      }
+
       if (slides.length === 0) {
         const container = document.getElementById('slidesContainer');
         container.innerHTML = '<div style="color: #d4af37; text-align: center; font-size: 24px; padding: 40px;">Unable to load media. Please check the media folder.</div>';
