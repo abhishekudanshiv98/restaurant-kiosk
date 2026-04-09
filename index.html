@@ -114,7 +114,7 @@
       align-items: center;
       justify-content: center;
       z-index: 200;
-      padding: 20px;
+      padding: 10px;
     }
 
     .form-modal.visible {
@@ -124,8 +124,8 @@
     .form-box {
       position: relative;
       width: 100%;
-      max-width: 900px;
-      max-height: 90vh;
+      max-width: 98%;
+      height: 90vh;
       background: white;
       border-radius: 12px;
       overflow-y: auto;
@@ -155,8 +155,8 @@
 
     .close-btn {
       position: absolute;
-      top: 15px;
-      right: 15px;
+      top: 20px;
+      right: 20px;
       background: #d4af37;
       color: #1a1a1a;
       border: none;
@@ -165,11 +165,12 @@
       height: 50px;
       border-radius: 50%;
       cursor: pointer;
-      z-index: 300;
+      z-index: 301;
       transition: all 0.3s ease;
       display: flex;
       align-items: center;
       justify-content: center;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
     }
 
     .close-btn:hover {
@@ -177,10 +178,14 @@
       transform: rotate(90deg);
     }
 
+    .close-btn:active {
+      transform: rotate(90deg) scale(0.95);
+    }
+
     iframe {
       width: 100%;
       flex: 1;
-      min-height: 0;
+      min-height: 500px;
       border: none;
       display: block;
     }
@@ -237,8 +242,8 @@
 
   <!-- Feedback Form Modal -->
   <div class="form-modal" id="formModal">
+    <button class="close-btn" onclick="closeForm()">&#10005;</button>
     <div class="form-box">
-      <button class="close-btn" onclick="closeForm()">✕</button>
       <div class="form-header">
         <h1>Guest Feedback</h1>
         <p>Help us serve you better</p>
