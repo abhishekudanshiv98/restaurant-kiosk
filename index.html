@@ -373,12 +373,19 @@
             const video = document.createElement('video');
             video.src = mediaFolder + item.name;
             video.controls = false;
-            video.muted = false;
-            video.volume = 1.0;
+            video.muted = true; // iOS requires muted to autoplay
+            video.playsinline = true; // iOS fullscreen fix
             video.style.width = '100%';
             video.style.height = '100%';
             video.style.objectFit = 'cover';
             video.preload = 'metadata';
+
+            // Unmute once it starts playing
+            video.addEventListener('play', () => {
+              video.muted = false;
+              video.volume = 1.0;
+            });
+
             video.addEventListener('error', () => {
               console.error('Video failed to load:', mediaFolder + item.name);
             });
@@ -430,12 +437,22 @@
           if (video) {
             console.log('Playing video:', video.src);
             video.currentTime = 0;
+            video.muted = true; // Ensure muted for iOS autoplay
 
             const playPromise = video.play();
             if (playPromise !== undefined) {
-              playPromise.catch(error => {
-                console.log('Video autoplay blocked:', error);
-              });
+              playPromise
+                .then(() => {
+                  console.log('Video playing');
+                  // Unmute after it starts
+                  setTimeout(() => {
+                    video.muted = false;
+                    video.volume = 1.0;
+                  }, 100);
+                })
+                .catch(error => {
+                  console.log('Video autoplay blocked:', error);
+                });
             }
 
             // Move to next when video ends
