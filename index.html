@@ -392,13 +392,6 @@
             // Prevent click from bubbling to parent (which opens form)
             video.addEventListener('click', (e) => {
               e.stopPropagation();
-              // If user clicks video and it's paused, try to play it
-              if (video.paused) {
-                console.log('User clicked video, attempting to play');
-                video.play().catch(err => console.log('Play error:', err));
-              } else {
-                video.pause();
-              }
             });
 
             // Unmute once it starts playing
@@ -464,20 +457,19 @@
           if (video) {
             console.log('Video element found:', video.src);
             video.currentTime = 0;
-            video.muted = true; // Ensure muted for iOS autoplay
+            video.muted = true; // Must be muted for iOS autoplay
 
-            // Try to play - might be blocked on iOS but autoplay attribute should handle it
-            if (video.paused) {
-              const playPromise = video.play();
-              if (playPromise !== undefined) {
-                playPromise
-                  .then(() => {
-                    console.log('Video playing via JavaScript');
-                  })
-                  .catch(error => {
-                    console.log('Video autoplay blocked (relying on autoplay attr):', error);
-                  });
-              }
+            // Force play on all browsers/devices
+            const playPromise = video.play();
+            if (playPromise !== undefined) {
+              playPromise
+                .then(() => {
+                  console.log('Video playing');
+                })
+                .catch(error => {
+                  console.log('Video autoplay attempt (iOS may require user gesture):', error);
+                  // On iOS, autoplay might still work via the autoplay attribute
+                });
             }
 
             // Move to next when video ends
@@ -549,21 +541,26 @@
       }, 4500);
     });
 
-    // Request fullscreen on first tap/click
+    // Request fullscreen on first tap/click and enable video autoplay
     let fullscreenRequested = false;
-    document.addEventListener('touchstart', () => {
+    function enableVideoPlayback() {
       if (!fullscreenRequested) {
         fullscreenRequested = true;
         enterFullscreen();
-      }
-    });
 
-    document.addEventListener('click', () => {
-      if (!fullscreenRequested) {
-        fullscreenRequested = true;
-        enterFullscreen();
+        // After user interaction, try to play any videos
+        setTimeout(() => {
+          document.querySelectorAll('video').forEach(video => {
+            if (video.autoplay && video.muted) {
+              video.play().catch(err => console.log('Video autoplay:', err));
+            }
+          });
+        }, 100);
       }
-    });
+    }
+
+    document.addEventListener('touchstart', enableVideoPlayback);
+    document.addEventListener('click', enableVideoPlayback);
 
     // Handle orientation changes
     window.addEventListener('orientationchange', () => {
