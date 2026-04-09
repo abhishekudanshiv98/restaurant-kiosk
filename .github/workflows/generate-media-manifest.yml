@@ -1,0 +1,65 @@
+name: Auto-Generate Media Manifest
+
+on:
+  push:
+    paths:
+      - 'media/**'
+  workflow_dispatch:
+
+jobs:
+  generate-manifest:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Generate media.json manifest
+        run: |
+          node -e "
+          const fs = require('fs');
+          const path = require('path');
+
+          const mediaDir = 'media';
+          const videoExtensions = ['.mp4', '.mov', '.avi', '.mkv', '.webm'];
+          const imageExtensions = ['.jpg', '.jpeg', '.png', '.gif', '.webp'];
+
+          // Get all files in media folder
+          const files = fs.readdirSync(mediaDir)
+            .filter(file => {
+              // Skip hidden files and media.json
+              return !file.startsWith('.') && file !== 'media.json';
+            })
+            .sort(); // Sort alphabetically
+
+          // Determine file types and build manifest
+          const media = files.map(file => {
+            const ext = path.extname(file).toLowerCase();
+            const type = videoExtensions.includes(ext) ? 'video' : 'image';
+            return { name: file, type };
+          });
+
+          // Write media.json
+          const manifest = { media };
+          fs.writeFileSync(
+            path.join(mediaDir, 'media.json'),
+            JSON.stringify(manifest, null, 2) + '\n'
+          );
+
+          console.log('Generated media.json with ' + media.length + ' items');
+          media.forEach(m => console.log('  - ' + m.name + ' (' + m.type + ')'));
+          "
+
+      - name: Commit changes
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+          if git diff --quiet media/media.json; then
+            echo "media.json unchanged"
+          else
+            git add media/media.json
+            git commit -m "Auto-generate media manifest from media folder"
+            git push
+          fi
