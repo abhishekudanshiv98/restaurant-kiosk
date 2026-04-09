@@ -449,10 +449,10 @@
         // Video: advance only when it ends
         console.log('Video detected, waiting for onended event');
 
-        // Clear any previous onended handler
-        video.onended = null;
+        // Reset video to start
+        video.currentTime = 0;
 
-        // Set up onended handler
+        // Set up onended handler - will fire when video naturally finishes
         const handleVideoEnd = () => {
           console.log('Video ended, advancing to next slide');
           video.removeEventListener('ended', handleVideoEnd);
@@ -462,15 +462,8 @@
 
         video.addEventListener('ended', handleVideoEnd, { once: true });
 
-        // Play the video
-        video.currentTime = 0;
-        video.muted = true;
-        const playPromise = video.play();
-        if (playPromise !== undefined) {
-          playPromise.catch(err => {
-            console.log('Video autoplay failed, will try again on next slide');
-          });
-        }
+        // Video has autoplay=true set, let browser handle playback
+        // No need to call play() - autoplay attribute will handle it
       } else {
         // Image: advance after 5 seconds
         rotationTimeout = setTimeout(() => {
