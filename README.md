@@ -144,4 +144,5 @@ For issues with the kiosk setup, check your repo's GitHub Actions tab for build 
 
 **Restaurant:** Hotel Chul  
 **Theme:** Fine Dining Elegance  
-**Status:** 🟢 Live & Ready
+**Status:** 🟢 Live & Ready  
+**Features:** 🎵 Multi-song daily shuffle, 📹 Video carousel, 📝 Guest feedback form
