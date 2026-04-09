@@ -350,53 +350,53 @@
 
   <script>
     const formURL = "https://docs.google.com/forms/d/e/1FAIpQLSf6OdEbQtc6J0AEjtxAaPmDCz8AZHpuJzGf6ym-trYC8HWDEg/viewform?embedded=true";
-    const imageFolder = "images/";
+    const mediaFolder = "media/";
     let currentSlide = 0;
     let isFormOpen = false;
     let initialFormLoad = true;
     let slides = [];
 
-    // Load images dynamically
-    function loadImages() {
-      const container = document.getElementById('slidesContainer');
+    // Load media from manifest
+    async function loadImages() {
+      try {
+        const response = await fetch('media/media.json');
+        const data = await response.json();
+        const mediaList = data.media || [];
 
-      // Load dish1 through dish7
-      const imageNames = [
-        'dish1.png', 'dish2.png', 'dish3.png', 'dish4.png',
-        'dish5.png', 'dish6.png', 'dish7.png'
-      ];
+        const container = document.getElementById('slidesContainer');
 
-      imageNames.forEach((imageName) => {
-        const slide = document.createElement('div');
-        slide.className = 'slide';
+        mediaList.forEach((item) => {
+          const slide = document.createElement('div');
+          slide.className = 'slide';
 
-        const img = document.createElement('img');
-        img.src = imageFolder + imageName;
-        img.onerror = () => {
-          // Try .jpg if .png fails
-          img.src = imageFolder + imageName.replace('.png', '.jpg');
-        };
+          if (item.type === 'video') {
+            const video = document.createElement('video');
+            video.src = mediaFolder + item.name;
+            video.controls = false;
+            video.muted = false;
+            video.volume = 1.0;
+            video.style.width = '100%';
+            video.style.height = '100%';
+            video.style.objectFit = 'cover';
+            slide.appendChild(video);
+          } else {
+            const img = document.createElement('img');
+            img.src = mediaFolder + item.name;
+            slide.appendChild(img);
+          }
 
-        slide.appendChild(img);
-        container.appendChild(slide);
-      });
-
-      slides = document.querySelectorAll('.slide');
-
-      // Filter out broken images and show only loaded ones
-      setTimeout(() => {
-        const loadedSlides = Array.from(slides).filter(slide => {
-          const img = slide.querySelector('img');
-          return img && img.naturalHeight > 0;
+          container.appendChild(slide);
         });
 
-        if (loadedSlides.length > 0) {
-          slides.forEach(s => s.classList.remove('active'));
-          loadedSlides[0].classList.add('active');
+        slides = document.querySelectorAll('.slide');
+        if (slides.length > 0) {
+          slides[0].classList.add('active');
           currentSlide = 0;
-          document.getElementById('totalSlides').textContent = loadedSlides.length;
+          document.getElementById('totalSlides').textContent = slides.length;
         }
-      }, 1500);
+      } catch (error) {
+        console.error('Error loading media:', error);
+      }
     }
 
     // Auto-rotate slides every 5 seconds
@@ -407,6 +407,25 @@
           currentSlide = (currentSlide + 1) % slides.length;
           slides[currentSlide].classList.add('active');
           document.getElementById('slideNumber').textContent = currentSlide + 1;
+
+          // If it's a video, auto-play it
+          const video = slides[currentSlide].querySelector('video');
+          if (video) {
+            video.currentTime = 0;
+            video.play().catch(e => {});
+
+            // Move to next when video ends
+            video.onended = () => {
+              setTimeout(() => {
+                if (slides.length > 0) {
+                  slides[currentSlide].classList.remove('active');
+                  currentSlide = (currentSlide + 1) % slides.length;
+                  slides[currentSlide].classList.add('active');
+                  document.getElementById('slideNumber').textContent = currentSlide + 1;
+                }
+              }, 1000);
+            };
+          }
         }
       }, 5000);
     }
