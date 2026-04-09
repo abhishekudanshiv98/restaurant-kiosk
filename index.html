@@ -1,0 +1,798 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Hotel Chul - Guest Feedback</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: #1a1a1a;
+      overflow: hidden;
+    }
+
+    /* Slideshow Container - Full Screen */
+    .slideshow-container {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: #000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      z-index: 100;
+    }
+
+    .slideshow-container.hidden {
+      display: none;
+    }
+
+    .slides-wrapper {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+    }
+
+    .slide {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      opacity: 0;
+      transition: opacity 0.8s ease-in-out;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: #000;
+    }
+
+    .slide.active {
+      opacity: 1;
+    }
+
+    .slide img,
+    .slide video {
+      max-width: 95%;
+      max-height: 95%;
+      object-fit: contain;
+    }
+
+    .slide video {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    /* Tap to Feedback Overlay */
+    .tap-overlay {
+      position: absolute;
+      bottom: 40px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(212, 175, 55, 0.9);
+      color: #1a1a1a;
+      padding: 15px 40px;
+      border-radius: 50px;
+      font-size: 18px;
+      font-weight: bold;
+      text-align: center;
+      animation: pulse 2s infinite;
+      z-index: 10;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 0.8; }
+      50% { opacity: 1; }
+    }
+
+    .slide-counter {
+      position: absolute;
+      top: 20px;
+      right: 30px;
+      color: rgba(212, 175, 55, 0.7);
+      font-size: 16px;
+      background: rgba(0, 0, 0, 0.5);
+      padding: 10px 20px;
+      border-radius: 20px;
+      z-index: 10;
+    }
+
+    /* Responsive adjustments */
+    @media (orientation: portrait) {
+      .tap-overlay {
+        font-size: 16px;
+        padding: 12px 30px;
+        bottom: 30px;
+      }
+
+      .slide-counter {
+        font-size: 14px;
+        padding: 8px 15px;
+      }
+    }
+
+    @media (orientation: landscape) {
+      .tap-overlay {
+        font-size: 14px;
+        padding: 10px 25px;
+        bottom: 20px;
+      }
+
+      .slide-counter {
+        font-size: 12px;
+        padding: 6px 12px;
+        top: 15px;
+        right: 20px;
+      }
+    }
+
+    /* Form Modal */
+    .form-modal {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.95);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 200;
+      padding: 10px;
+    }
+
+    .form-modal.visible {
+      display: flex;
+    }
+
+    /* Landscape: smaller padding to account for keyboard */
+    @media (orientation: landscape) {
+      .form-modal {
+        padding: 5px;
+      }
+    }
+
+    /* Prevent zoom on input focus for better UX */
+    input, textarea, select {
+      font-size: 16px;
+    }
+
+    .form-box {
+      position: relative;
+      width: 100%;
+      max-width: 98%;
+      height: 90vh;
+      background: white;
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 20px 80px rgba(0, 0, 0, 0.8);
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Portrait mode (taller, narrower) */
+    @media (orientation: portrait) {
+      .form-box {
+        height: 85vh;
+        max-width: 95%;
+      }
+
+      .form-header h1 {
+        font-size: 24px;
+      }
+
+      iframe {
+        min-height: 400px;
+      }
+    }
+
+    /* Landscape mode (shorter, wider) */
+    @media (orientation: landscape) {
+      .form-box {
+        height: 95vh;
+        max-width: 90%;
+      }
+
+      .form-header h1 {
+        font-size: 20px;
+      }
+
+      .form-header p {
+        font-size: 12px;
+      }
+
+      iframe {
+        min-height: 300px;
+      }
+
+      .close-btn {
+        width: 45px;
+        height: 45px;
+        font-size: 28px;
+      }
+    }
+
+    .form-header {
+      background: linear-gradient(90deg, #6b1f2a 0%, #8b3a3a 100%);
+      color: #d4af37;
+      padding: 25px;
+      text-align: center;
+      flex-shrink: 0;
+    }
+
+    .form-header h1 {
+      font-size: 28px;
+      margin-bottom: 5px;
+    }
+
+    .form-header p {
+      font-size: 14px;
+      color: #c9a961;
+    }
+
+    .close-btn {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      background: #d4af37;
+      color: #1a1a1a;
+      border: none;
+      font-size: 32px;
+      width: 50px;
+      height: 50px;
+      border-radius: 50%;
+      cursor: pointer;
+      z-index: 301;
+      transition: all 0.3s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+    }
+
+    .close-btn:hover {
+      background: #e6c956;
+      transform: rotate(90deg);
+    }
+
+    .close-btn:active {
+      transform: rotate(90deg) scale(0.95);
+    }
+
+    iframe {
+      width: 100%;
+      flex: 1;
+      min-height: 500px;
+      border: none;
+      display: block;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    /* Thank You Screen */
+    .thank-you {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(135deg, #6b1f2a 0%, #3d1f2a 100%);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 250;
+      flex-direction: column;
+    }
+
+    .thank-you.visible {
+      display: flex;
+    }
+
+    .thank-you-content {
+      text-align: center;
+      color: #d4af37;
+    }
+
+    .thank-you h2 {
+      font-size: 56px;
+      margin-bottom: 20px;
+    }
+
+    .thank-you p {
+      font-size: 24px;
+      color: #c9a961;
+      max-width: 600px;
+      line-height: 1.6;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Background Music -->
+  <audio id="backgroundMusic">
+    <source src="audio/song1.mp3" type="audio/mpeg">
+  </audio>
+
+  <!-- Full Screen Slideshow -->
+  <div class="slideshow-container" id="slideshowContainer" onclick="openForm()">
+    <div class="slides-wrapper" id="slidesContainer">
+      <!-- Slides will be loaded here -->
+    </div>
+    <div class="tap-overlay">👆 TAP TO SHARE FEEDBACK</div>
+    <div class="slide-counter">
+      <span id="slideNumber">1</span> / <span id="totalSlides">1</span>
+    </div>
+  </div>
+
+  <!-- Feedback Form Modal -->
+  <div class="form-modal" id="formModal">
+    <button class="close-btn" onclick="closeForm()">&#10005;</button>
+    <div class="form-box">
+      <div class="form-header">
+        <h1>Guest Feedback</h1>
+        <p>Help us serve you better</p>
+      </div>
+      <iframe
+        id="gform"
+        src="https://docs.google.com/forms/d/e/1FAIpQLSf6OdEbQtc6J0AEjtxAaPmDCz8AZHpuJzGf6ym-trYC8HWDEg/viewform?embedded=true"
+        scrolling="yes"
+        allow="geolocation">
+      </iframe>
+    </div>
+  </div>
+
+  <!-- Thank You Screen -->
+  <div class="thank-you" id="thankYouScreen">
+    <div class="thank-you-content">
+      <h2>🙏 Thank You!</h2>
+      <p>Your feedback means everything to us.<br>We look forward to serving you again.</p>
+    </div>
+  </div>
+
+  <script>
+    const formURL = "https://docs.google.com/forms/d/e/1FAIpQLSf6OdEbQtc6J0AEjtxAaPmDCz8AZHpuJzGf6ym-trYC8HWDEg/viewform?embedded=true";
+    const mediaFolder = "media/";
+    let currentSlide = 0;
+    let isFormOpen = false;
+    let initialFormLoad = true;
+    let slides = [];
+    let formOpenTime = 0;
+    let formTimeout = null;
+    let userHasInteracted = false;
+
+    // Background music settings
+    const backgroundMusicVolume = 0.25; // 25% volume
+    const duckingVolume = 0.10; // 10% when video plays
+    let backgroundMusic = null;
+    let audioPlaylist = []; // List of all available songs
+    let currentSongIndex = 0; // Current song in shuffled playlist
+    let shuffledPlaylist = []; // Today's shuffled song order
+
+    // Load media from manifest
+    async function loadImages() {
+      try {
+        const response = await fetch('media/media.json');
+        const data = await response.json();
+        const mediaList = data.media || [];
+
+        const container = document.getElementById('slidesContainer');
+
+        mediaList.forEach((item) => {
+          const slide = document.createElement('div');
+          slide.className = 'slide';
+
+          if (item.type === 'video') {
+            const video = document.createElement('video');
+            video.src = mediaFolder + item.name;
+            video.autoplay = true; // Critical for iOS
+            video.controls = false;
+            video.muted = true; // iOS requires muted to autoplay
+            video.playsinline = true; // iOS fullscreen fix
+            video.loop = false;
+            video.style.width = '100%';
+            video.style.height = '100%';
+            video.style.objectFit = 'cover';
+            video.preload = 'auto';
+
+            // Prevent click from bubbling to parent (which opens form)
+            video.addEventListener('click', (e) => {
+              e.stopPropagation();
+            });
+
+            // Unmute once it starts playing
+            video.addEventListener('play', () => {
+              console.log('Video started playing, unmuting');
+              video.muted = false;
+              video.volume = 1.0;
+            });
+
+            video.addEventListener('loadedmetadata', () => {
+              console.log('Video loaded:', item.name);
+            });
+
+            video.addEventListener('error', (e) => {
+              console.error('Video failed to load:', item.name, e);
+            });
+
+            slide.appendChild(video);
+          } else {
+            const img = document.createElement('img');
+            img.src = mediaFolder + item.name;
+            slide.appendChild(img);
+          }
+
+          container.appendChild(slide);
+        });
+
+        slides = document.querySelectorAll('.slide');
+        if (slides.length > 0) {
+          slides[0].classList.add('active');
+          currentSlide = 0;
+          document.getElementById('totalSlides').textContent = slides.length;
+        }
+      } catch (error) {
+        console.error('Error loading media:', error);
+      }
+    }
+
+    // Schedule next slide rotation (images every 5s, videos after they end)
+    let rotationTimeout = null;
+    let videoPlayTimeout = null;
+
+    function scheduleNextRotation() {
+      if (rotationTimeout) {
+        clearTimeout(rotationTimeout);
+      }
+
+      if (isFormOpen || slides.length === 0) return;
+
+      const currentElement = slides[currentSlide];
+      const video = currentElement.querySelector('video');
+
+      if (video) {
+        // Video: only try to play if user has interacted
+        console.log('Video detected');
+
+        if (!userHasInteracted) {
+          console.log('User hasnt interacted yet, skipping to next slide');
+          // Skip video until user taps
+          rotationTimeout = setTimeout(() => {
+            advanceSlide();
+            scheduleNextRotation();
+          }, 1000);
+          return;
+        }
+
+        // Reset video to start
+        video.currentTime = 0;
+
+        // Set up onended handler - will fire when video naturally finishes
+        const handleVideoEnd = () => {
+          console.log('Video ended, advancing to next slide');
+          video.removeEventListener('ended', handleVideoEnd);
+          if (videoPlayTimeout) {
+            clearTimeout(videoPlayTimeout);
+            videoPlayTimeout = null;
+          }
+          // Restore background music volume
+          restoreBackgroundMusic();
+          advanceSlide();
+          scheduleNextRotation();
+        };
+
+        video.addEventListener('ended', handleVideoEnd, { once: true });
+
+        // Safety timeout: if video doesn't finish within expected time + buffer, skip it
+        // Get video duration if available, or use fallback
+        let skipTimeout = 30000; // 30 second fallback timeout
+        if (video.duration && video.duration > 0) {
+          skipTimeout = (video.duration + 5) * 1000; // Video duration + 5 second buffer
+        }
+
+        videoPlayTimeout = setTimeout(() => {
+          console.log('Video playback timeout - no ended event received, skipping to next slide');
+          video.removeEventListener('ended', handleVideoEnd);
+          restoreBackgroundMusic();
+          advanceSlide();
+          scheduleNextRotation();
+        }, skipTimeout);
+
+        // Explicitly play the video
+        video.muted = true; // Keep muted for autoplay permission
+        const playPromise = video.play();
+        if (playPromise !== undefined) {
+          playPromise
+            .then(() => {
+              console.log('Video playing:', video.src);
+              // Duck background music volume
+              duckBackgroundMusic();
+              // Unmute once it starts
+              setTimeout(() => {
+                video.muted = false;
+                video.volume = 1.0;
+              }, 100);
+            })
+            .catch(err => {
+              console.log('Video play failed:', err);
+              // If play fails, skip to next slide
+              if (videoPlayTimeout) {
+                clearTimeout(videoPlayTimeout);
+                videoPlayTimeout = null;
+              }
+              video.removeEventListener('ended', handleVideoEnd);
+              restoreBackgroundMusic();
+              advanceSlide();
+              scheduleNextRotation();
+            });
+        }
+      } else {
+        // Image: advance after 5 seconds
+        rotationTimeout = setTimeout(() => {
+          advanceSlide();
+          scheduleNextRotation();
+        }, 5000);
+      }
+    }
+
+    function advanceSlide() {
+      if (slides.length === 0) return;
+
+      // Stop all videos
+      document.querySelectorAll('video').forEach(v => {
+        v.pause();
+        v.currentTime = 0;
+      });
+
+      slides[currentSlide].classList.remove('active');
+      currentSlide = (currentSlide + 1) % slides.length;
+      slides[currentSlide].classList.add('active');
+      document.getElementById('slideNumber').textContent = currentSlide + 1;
+    }
+
+    function autoRotateSlides() {
+      scheduleNextRotation();
+    }
+
+    // Enter fullscreen
+    function enterFullscreen() {
+      const elem = document.documentElement;
+      if (elem.requestFullscreen) {
+        elem.requestFullscreen().catch(() => {});
+      } else if (elem.webkitRequestFullscreen) {
+        elem.webkitRequestFullscreen();
+      } else if (elem.mozRequestFullScreen) {
+        elem.mozRequestFullScreen();
+      } else if (elem.msRequestFullscreen) {
+        elem.msRequestFullscreen();
+      }
+    }
+
+    // Open form modal
+    function openForm() {
+      if (isFormOpen) return;
+      isFormOpen = true;
+      formOpenTime = Date.now();
+      document.getElementById('formModal').classList.add('visible');
+      document.getElementById('slideshowContainer').style.pointerEvents = 'none';
+
+      // Auto-close form after 3 minutes of inactivity (in case submission doesn't trigger reload)
+      formTimeout = setTimeout(() => {
+        console.log('Form timeout - auto-closing after 3 minutes');
+        showThankYouAndReturn();
+      }, 180000); // 3 minutes
+    }
+
+    // Close form modal
+    function closeForm() {
+      if (formTimeout) {
+        clearTimeout(formTimeout);
+        formTimeout = null;
+      }
+      document.getElementById('formModal').classList.remove('visible');
+      document.getElementById('slideshowContainer').style.pointerEvents = 'auto';
+      isFormOpen = false;
+    }
+
+    // Show thank you screen and return to slideshow
+    function showThankYouAndReturn() {
+      if (formTimeout) {
+        clearTimeout(formTimeout);
+        formTimeout = null;
+      }
+      document.getElementById('formModal').classList.remove('visible');
+      document.getElementById('thankYouScreen').classList.add('visible');
+
+      setTimeout(() => {
+        document.getElementById('thankYouScreen').classList.remove('visible');
+        document.getElementById('slideshowContainer').style.pointerEvents = 'auto';
+        isFormOpen = false;
+        // Reload form for next person
+        document.getElementById('gform').src = formURL;
+        formLoaded = false;
+      }, 2500);
+    }
+
+    // Load audio playlist from manifest
+    async function loadAudioPlaylist() {
+      try {
+        const response = await fetch('audio/audio.json');
+        const data = await response.json();
+        audioPlaylist = (data.audio || []).map(a => 'audio/' + a.name);
+        console.log('Loaded audio playlist:', audioPlaylist);
+        shufflePlaylistForToday();
+      } catch (error) {
+        console.log('No audio playlist found, using default:', error);
+        audioPlaylist = ['audio/song1.mp3'];
+        shuffledPlaylist = audioPlaylist;
+      }
+    }
+
+    // Seeded shuffle based on today's date (same shuffle for entire day)
+    function shufflePlaylistForToday() {
+      // Use today's date as seed
+      const today = new Date();
+      const dayString = today.getFullYear() + '-' + (today.getMonth() + 1) + '-' + today.getDate();
+
+      // Create shuffled copy
+      shuffledPlaylist = [...audioPlaylist];
+
+      // Seeded shuffle using day string as seed
+      let seed = 0;
+      for (let i = 0; i < dayString.length; i++) {
+        seed = ((seed << 5) - seed) + dayString.charCodeAt(i);
+        seed = seed & seed; // Convert to 32-bit integer
+      }
+
+      // Shuffle with seeded random
+      for (let i = shuffledPlaylist.length - 1; i > 0; i--) {
+        seed = (seed * 9301 + 49297) % 233280;
+        const j = Math.floor((seed / 233280) * (i + 1));
+        [shuffledPlaylist[i], shuffledPlaylist[j]] = [shuffledPlaylist[j], shuffledPlaylist[i]];
+      }
+
+      console.log('Shuffled playlist for today:', shuffledPlaylist);
+      currentSongIndex = 0;
+    }
+
+    // Background music control functions
+    function duckBackgroundMusic() {
+      if (backgroundMusic) {
+        console.log('Ducking background music volume to', duckingVolume);
+        backgroundMusic.volume = duckingVolume;
+      }
+    }
+
+    function restoreBackgroundMusic() {
+      if (backgroundMusic) {
+        console.log('Restoring background music volume to', backgroundMusicVolume);
+        backgroundMusic.volume = backgroundMusicVolume;
+      }
+    }
+
+    function playNextSong() {
+      if (shuffledPlaylist.length === 0) {
+        console.log('No songs in playlist');
+        return;
+      }
+
+      // Get current song
+      const currentSong = shuffledPlaylist[currentSongIndex];
+      console.log('Playing song', currentSongIndex + 1, 'of', shuffledPlaylist.length, ':', currentSong);
+
+      // Set audio source and play
+      backgroundMusic.src = currentSong;
+      backgroundMusic.volume = backgroundMusicVolume;
+
+      const playPromise = backgroundMusic.play();
+      if (playPromise !== undefined) {
+        playPromise
+          .then(() => {
+            console.log('Now playing:', currentSong);
+          })
+          .catch(err => {
+            console.log('Song autoplay blocked (waiting for user interaction):', err);
+            // Move to next song on error
+            moveToNextSong();
+          });
+      }
+    }
+
+    function moveToNextSong() {
+      currentSongIndex = (currentSongIndex + 1) % shuffledPlaylist.length;
+
+      // If we've cycled through all songs, reshuffle for tomorrow concept (or just loop)
+      // For now, just continue with shuffled order
+      playNextSong();
+    }
+
+    function startBackgroundMusic() {
+      backgroundMusic = document.getElementById('backgroundMusic');
+      if (backgroundMusic) {
+        // Set up onended handler to play next song
+        backgroundMusic.addEventListener('ended', () => {
+          console.log('Song ended, moving to next');
+          moveToNextSong();
+        });
+
+        // Load playlist and start playing
+        loadAudioPlaylist().then(() => {
+          playNextSong();
+        });
+      }
+    }
+
+    // Pre-load iframe on page load
+    let formLoaded = false;
+    document.getElementById('gform').addEventListener('load', function () {
+      if (!formLoaded) {
+        formLoaded = true;
+        return;
+      }
+
+      // Form was submitted (page reloaded after success)
+      console.log('Form submission detected via iframe reload');
+      showThankYouAndReturn();
+    });
+
+    // Request fullscreen on first tap/click and enable video autoplay
+    let fullscreenRequested = false;
+    function enableVideoPlayback() {
+      if (!fullscreenRequested) {
+        fullscreenRequested = true;
+        userHasInteracted = true;
+        console.log('User interacted, videos can now play');
+        enterFullscreen();
+
+        // Start background music on first interaction
+        startBackgroundMusic();
+
+        // Trigger rotation to start playing video if current slide is a video
+        scheduleNextRotation();
+      }
+    }
+
+    document.addEventListener('touchstart', enableVideoPlayback);
+    document.addEventListener('click', enableVideoPlayback);
+
+    // Handle orientation changes
+    window.addEventListener('orientationchange', () => {
+      setTimeout(() => {
+        // Adjust form modal size on rotation
+        const formModal = document.getElementById('formModal');
+        if (formModal.classList.contains('visible')) {
+          formModal.classList.remove('visible');
+          setTimeout(() => {
+            formModal.classList.add('visible');
+          }, 100);
+        }
+      }, 100);
+    });
+
+    // Initialize on load
+    window.addEventListener('load', () => {
+      loadImages();
+      autoRotateSlides();
+
+      // Pre-warm the iframe by ensuring it's loaded
+      setTimeout(() => {
+        const iframe = document.getElementById('gform');
+        if (iframe) {
+          iframe.src = formURL;
+        }
+      }, 500);
+    });
+  </script>
+
+</body>
+</html>
