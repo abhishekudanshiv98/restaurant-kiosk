@@ -342,19 +342,17 @@
       document.getElementById('formModal').classList.remove('visible');
       document.getElementById('slideshowContainer').style.pointerEvents = 'auto';
       isFormOpen = false;
-      // Reset form
-      document.getElementById('gform').src = formURL;
-      initialFormLoad = true;
     }
 
-    // Detect form submission
+    // Pre-load iframe on page load
+    let formLoaded = false;
     document.getElementById('gform').addEventListener('load', function () {
-      if (initialFormLoad) {
-        initialFormLoad = false;
+      if (!formLoaded) {
+        formLoaded = true;
         return;
       }
 
-      // Form submitted - show thank you
+      // Form was submitted (page reloaded after success)
       document.getElementById('formModal').classList.remove('visible');
       document.getElementById('thankYouScreen').classList.add('visible');
 
@@ -363,8 +361,9 @@
         document.getElementById('thankYouScreen').classList.remove('visible');
         document.getElementById('slideshowContainer').style.pointerEvents = 'auto';
         isFormOpen = false;
+        // Reload form for next person
         document.getElementById('gform').src = formURL;
-        initialFormLoad = true;
+        formLoaded = false;
       }, 4500);
     });
 
@@ -388,6 +387,14 @@
     window.addEventListener('load', () => {
       loadImages();
       autoRotateSlides();
+
+      // Pre-warm the iframe by ensuring it's loaded
+      setTimeout(() => {
+        const iframe = document.getElementById('gform');
+        if (iframe) {
+          iframe.src = formURL;
+        }
+      }, 500);
     });
   </script>
 
