@@ -2,7 +2,9 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black">
   <title>Hotel Chul - Guest Feedback</title>
   <style>
     * {
@@ -11,10 +13,18 @@
       box-sizing: border-box;
     }
 
+    html, body {
+      overflow: hidden;
+      position: fixed;
+      width: 100%;
+      height: 100%;
+    }
+
     body {
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
       background: #1a1a1a;
-      overflow: hidden;
+      -webkit-tap-highlight-color: transparent;
+      touch-action: manipulation;
     }
 
     /* Slideshow Container - Full Screen */
@@ -66,8 +76,7 @@
       pointer-events: auto;
     }
 
-    .slide img,
-    .slide video {
+    .slide img {
       max-width: 95%;
       max-height: 95%;
       object-fit: contain;
@@ -324,9 +333,7 @@
 <body>
 
   <!-- Background Music -->
-  <audio id="backgroundMusic">
-    <source src="audio/song1.mp3" type="audio/mpeg">
-  </audio>
+  <audio id="backgroundMusic"></audio>
 
   <!-- Full Screen Slideshow -->
   <div class="slideshow-container" id="slideshowContainer" onclick="openForm()">
@@ -374,6 +381,7 @@
     let formOpenTime = 0;
     let formTimeout = null;
     let userHasInteracted = false;
+    let formLoaded = false;
 
     // Background music settings
     const backgroundMusicVolume = 0.25; // 25% volume
@@ -701,6 +709,7 @@
       document.getElementById('formModal').classList.remove('visible');
       document.getElementById('slideshowContainer').style.pointerEvents = 'auto';
       isFormOpen = false;
+      scheduleNextRotation();
     }
 
     // Show thank you screen and return to slideshow
@@ -719,6 +728,7 @@
         // Reload form for next person
         document.getElementById('gform').src = formURL;
         formLoaded = false;
+        scheduleNextRotation();
       }, 2500);
     }
 
@@ -726,6 +736,9 @@
     async function loadAudioPlaylist() {
       try {
         const response = await fetch('audio/audio.json');
+        if (!response.ok) {
+          throw new Error('Failed to fetch audio manifest, status: ' + response.status);
+        }
         const data = await response.json();
         audioPlaylist = (data.audio || []).map(a => 'audio/' + a.name);
         console.log('Loaded audio playlist:', audioPlaylist);
@@ -798,6 +811,7 @@
         playPromise
           .then(() => {
             console.log('Now playing:', currentSong);
+            songRetryCount = 0;
           })
           .catch(err => {
             console.log('Song autoplay blocked (waiting for user interaction):', err);
@@ -807,11 +821,15 @@
       }
     }
 
+    let songRetryCount = 0;
     function moveToNextSong() {
+      songRetryCount++;
+      if (songRetryCount > shuffledPlaylist.length) {
+        console.error('All songs failed to play, stopping music');
+        songRetryCount = 0;
+        return;
+      }
       currentSongIndex = (currentSongIndex + 1) % shuffledPlaylist.length;
-
-      // If we've cycled through all songs, reshuffle for tomorrow concept (or just loop)
-      // For now, just continue with shuffled order
       playNextSong();
     }
 
@@ -831,8 +849,7 @@
       }
     }
 
-    // Pre-load iframe on page load
-    let formLoaded = false;
+    // Detect form submission via iframe reload
     document.getElementById('gform').addEventListener('load', function () {
       if (!formLoaded) {
         formLoaded = true;
@@ -864,32 +881,14 @@
     document.addEventListener('touchstart', enableVideoPlayback);
     document.addEventListener('click', enableVideoPlayback);
 
-    // Handle orientation changes
-    window.addEventListener('orientationchange', () => {
-      setTimeout(() => {
-        // Adjust form modal size on rotation
-        const formModal = document.getElementById('formModal');
-        if (formModal.classList.contains('visible')) {
-          formModal.classList.remove('visible');
-          setTimeout(() => {
-            formModal.classList.add('visible');
-          }, 100);
-        }
-      }, 100);
-    });
-
     // Initialize on load
-    window.addEventListener('load', () => {
-      loadImages();
+    window.addEventListener('load', async () => {
+      await loadImages();
+      if (slides.length === 0) {
+        const container = document.getElementById('slidesContainer');
+        container.innerHTML = '<div style="color: #d4af37; text-align: center; font-size: 24px; padding: 40px;">Unable to load media. Please check the media folder.</div>';
+      }
       autoRotateSlides();
-
-      // Pre-warm the iframe by ensuring it's loaded
-      setTimeout(() => {
-        const iframe = document.getElementById('gform');
-        if (iframe) {
-          iframe.src = formURL;
-        }
-      }, 500);
     });
   </script>
 
