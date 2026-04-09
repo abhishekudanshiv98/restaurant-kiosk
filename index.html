@@ -432,63 +432,71 @@
       }
     }
 
-    // Auto-rotate slides every 5 seconds
-    function autoRotateSlides() {
-      setInterval(() => {
-        if (!isFormOpen && slides.length > 0) {
-          // Don't skip if a video is currently playing
-          const currentVideo = slides[currentSlide].querySelector('video');
-          if (currentVideo && !currentVideo.paused && !currentVideo.ended) {
-            // Video still playing, skip this rotation
-            return;
-          }
+    // Schedule next slide rotation (images every 5s, videos after they end)
+    let rotationTimeout = null;
 
-          // Stop all videos first
-          document.querySelectorAll('video').forEach(v => {
-            v.pause();
-            v.currentTime = 0;
+    function scheduleNextRotation() {
+      if (rotationTimeout) {
+        clearTimeout(rotationTimeout);
+      }
+
+      if (isFormOpen || slides.length === 0) return;
+
+      const currentElement = slides[currentSlide];
+      const video = currentElement.querySelector('video');
+
+      if (video) {
+        // Video: advance only when it ends
+        console.log('Video detected, waiting for onended event');
+
+        // Clear any previous onended handler
+        video.onended = null;
+
+        // Set up onended handler
+        const handleVideoEnd = () => {
+          console.log('Video ended, advancing to next slide');
+          video.removeEventListener('ended', handleVideoEnd);
+          advanceSlide();
+          scheduleNextRotation();
+        };
+
+        video.addEventListener('ended', handleVideoEnd, { once: true });
+
+        // Play the video
+        video.currentTime = 0;
+        video.muted = true;
+        const playPromise = video.play();
+        if (playPromise !== undefined) {
+          playPromise.catch(err => {
+            console.log('Video autoplay failed, will try again on next slide');
           });
-
-          slides[currentSlide].classList.remove('active');
-          currentSlide = (currentSlide + 1) % slides.length;
-          slides[currentSlide].classList.add('active');
-          document.getElementById('slideNumber').textContent = currentSlide + 1;
-
-          // If it's a video, ensure it plays
-          const video = slides[currentSlide].querySelector('video');
-          if (video) {
-            console.log('Video element found:', video.src);
-            video.currentTime = 0;
-            video.muted = true; // Must be muted for iOS autoplay
-
-            // Force play on all browsers/devices
-            const playPromise = video.play();
-            if (playPromise !== undefined) {
-              playPromise
-                .then(() => {
-                  console.log('Video playing');
-                })
-                .catch(error => {
-                  console.log('Video autoplay attempt (iOS may require user gesture):', error);
-                  // On iOS, autoplay might still work via the autoplay attribute
-                });
-            }
-
-            // Move to next when video ends
-            video.onended = () => {
-              console.log('Video ended, moving to next');
-              setTimeout(() => {
-                if (slides.length > 0) {
-                  slides[currentSlide].classList.remove('active');
-                  currentSlide = (currentSlide + 1) % slides.length;
-                  slides[currentSlide].classList.add('active');
-                  document.getElementById('slideNumber').textContent = currentSlide + 1;
-                }
-              }, 1000);
-            };
-          }
         }
-      }, 5000);
+      } else {
+        // Image: advance after 5 seconds
+        rotationTimeout = setTimeout(() => {
+          advanceSlide();
+          scheduleNextRotation();
+        }, 5000);
+      }
+    }
+
+    function advanceSlide() {
+      if (slides.length === 0) return;
+
+      // Stop all videos
+      document.querySelectorAll('video').forEach(v => {
+        v.pause();
+        v.currentTime = 0;
+      });
+
+      slides[currentSlide].classList.remove('active');
+      currentSlide = (currentSlide + 1) % slides.length;
+      slides[currentSlide].classList.add('active');
+      document.getElementById('slideNumber').textContent = currentSlide + 1;
+    }
+
+    function autoRotateSlides() {
+      scheduleNextRotation();
     }
 
     // Enter fullscreen
