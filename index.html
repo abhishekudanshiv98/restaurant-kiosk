@@ -462,8 +462,23 @@
 
         video.addEventListener('ended', handleVideoEnd, { once: true });
 
-        // Video has autoplay=true set, let browser handle playback
-        // No need to call play() - autoplay attribute will handle it
+        // Explicitly play the video (autoplay only works on page load)
+        video.muted = true; // Keep muted for autoplay permission
+        const playPromise = video.play();
+        if (playPromise !== undefined) {
+          playPromise
+            .then(() => {
+              console.log('Video playing');
+              // Unmute once it starts
+              setTimeout(() => {
+                video.muted = false;
+                video.volume = 1.0;
+              }, 100);
+            })
+            .catch(err => {
+              console.log('Video play failed, will retry next rotation:', err);
+            });
+        }
       } else {
         // Image: advance after 5 seconds
         rotationTimeout = setTimeout(() => {
