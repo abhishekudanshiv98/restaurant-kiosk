@@ -556,16 +556,7 @@
       const video = currentElement.querySelector('video');
 
       if (video) {
-        console.log('[Carousel] Slide', currentSlide + 1, 'is a video');
-
-        if (!userHasInteracted) {
-          console.log('[Carousel] User has not interacted yet, skipping video slide');
-          rotationTimeout = setTimeout(() => {
-            advanceSlide();
-            scheduleNextRotation();
-          }, 1000);
-          return;
-        }
+        console.log('[Carousel] Slide', currentSlide + 1, 'is a video, userHasInteracted:', userHasInteracted);
 
         // Reset video to start
         video.currentTime = 0;
@@ -603,27 +594,32 @@
           scheduleNextRotation();
         }, skipTimeout);
 
-        // Explicitly play the video
-        video.muted = true; // Keep muted for autoplay permission
+        // Always attempt to play the video - if autoplay is blocked, the catch will skip gracefully
+        video.muted = true; // Start muted for autoplay permission
+        console.log('[Carousel] Calling video.play() for slide', currentSlide + 1);
         const playPromise = video.play();
         if (playPromise !== undefined) {
           playPromise
             .then(() => {
-              console.log('[Carousel] Video playing successfully');
+              console.log('[Carousel] Video playing successfully on slide', currentSlide + 1);
               duckBackgroundMusic();
-              setTimeout(() => {
-                video.muted = false;
-                video.volume = 1.0;
-              }, 100);
+              // Unmute only if user has interacted (browser allows it)
+              if (userHasInteracted) {
+                setTimeout(() => {
+                  video.muted = false;
+                  video.volume = 1.0;
+                }, 100);
+              }
             })
             .catch(err => {
-              console.error('[Carousel] Video play failed, skipping:', err.message);
+              console.error('[Carousel] Video play failed on slide', currentSlide + 1, ':', err.message);
               if (videoPlayTimeout) {
                 clearTimeout(videoPlayTimeout);
                 videoPlayTimeout = null;
               }
               video.removeEventListener('ended', handleVideoEnd);
               restoreBackgroundMusic();
+              // On autoplay block, skip quickly; on other errors, also skip
               advanceSlide();
               scheduleNextRotation();
             });
@@ -859,10 +855,25 @@
         moveToNextSong();
       });
 
-      // Playlist was preloaded on page load, so play immediately (within user gesture context)
+      // Audio source was preloaded on page load, so play() should be near-instant
       if (shuffledPlaylist.length > 0) {
-        console.log('[Music] Playlist ready, starting playback immediately');
-        playNextSong();
+        console.log('[Music] Playlist ready, audio preloaded, starting playback immediately');
+        // Source is already set from preloadFirstSong(), just play
+        backgroundMusic.volume = backgroundMusicVolume;
+        const playPromise = backgroundMusic.play();
+        if (playPromise !== undefined) {
+          playPromise
+            .then(() => {
+              console.log('[Music] Now playing (preloaded):', shuffledPlaylist[currentSongIndex]);
+              songRetryCount = 0;
+            })
+            .catch(err => {
+              console.error('[Music] Play failed:', err.message);
+              if (err.name !== 'NotAllowedError') {
+                moveToNextSong();
+              }
+            });
+        }
       } else {
         console.warn('[Music] Playlist not loaded yet, loading now (may lose gesture context)');
         loadAudioPlaylist().then(() => {
@@ -905,11 +916,25 @@
     document.addEventListener('touchstart', enableVideoPlayback, true);
     document.addEventListener('click', enableVideoPlayback, true);
 
+    // Preload the first song's audio data into the audio element so play() is instant on first tap
+    function preloadFirstSong() {
+      const audioEl = document.getElementById('backgroundMusic');
+      if (!audioEl || shuffledPlaylist.length === 0) return;
+      const firstSong = shuffledPlaylist[0];
+      audioEl.src = firstSong;
+      audioEl.preload = 'auto';
+      audioEl.load(); // Force the browser to start buffering
+      console.log('[Music] Preloading first song audio data:', firstSong);
+    }
+
     // Initialize on load
     window.addEventListener('load', async () => {
       // Preload audio playlist so it's ready when user interacts (preserves gesture context)
       await loadAudioPlaylist();
       console.log('[Init] Audio playlist preloaded, songs:', shuffledPlaylist.length);
+
+      // Preload the first song's audio data so it's buffered and ready for instant playback on first tap
+      preloadFirstSong();
 
       await loadImages();
       if (slides.length === 0) {
