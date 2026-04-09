@@ -364,6 +364,7 @@
     let slides = [];
     let formOpenTime = 0;
     let formTimeout = null;
+    let userHasInteracted = false;
 
     // Load media from manifest
     async function loadImages() {
@@ -446,8 +447,18 @@
       const video = currentElement.querySelector('video');
 
       if (video) {
-        // Video: advance only when it ends
-        console.log('Video detected, waiting for onended event');
+        // Video: only try to play if user has interacted
+        console.log('Video detected');
+
+        if (!userHasInteracted) {
+          console.log('User hasnt interacted yet, skipping to next slide');
+          // Skip video until user taps
+          rotationTimeout = setTimeout(() => {
+            advanceSlide();
+            scheduleNextRotation();
+          }, 1000);
+          return;
+        }
 
         // Reset video to start
         video.currentTime = 0;
@@ -462,7 +473,7 @@
 
         video.addEventListener('ended', handleVideoEnd, { once: true });
 
-        // Explicitly play the video (autoplay only works on page load)
+        // Explicitly play the video
         video.muted = true; // Keep muted for autoplay permission
         const playPromise = video.play();
         if (playPromise !== undefined) {
@@ -476,7 +487,10 @@
               }, 100);
             })
             .catch(err => {
-              console.log('Video play failed, will retry next rotation:', err);
+              console.log('Video play failed:', err);
+              // If play fails, skip to next slide
+              advanceSlide();
+              scheduleNextRotation();
             });
         }
       } else {
@@ -584,16 +598,12 @@
     function enableVideoPlayback() {
       if (!fullscreenRequested) {
         fullscreenRequested = true;
+        userHasInteracted = true;
+        console.log('User interacted, videos can now play');
         enterFullscreen();
 
-        // After user interaction, try to play any videos
-        setTimeout(() => {
-          document.querySelectorAll('video').forEach(video => {
-            if (video.autoplay && video.muted) {
-              video.play().catch(err => console.log('Video autoplay:', err));
-            }
-          });
-        }, 100);
+        // Trigger rotation to start playing video if current slide is a video
+        scheduleNextRotation();
       }
     }
 
