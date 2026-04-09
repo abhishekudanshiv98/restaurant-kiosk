@@ -102,6 +102,35 @@
       z-index: 10;
     }
 
+    /* Responsive adjustments */
+    @media (orientation: portrait) {
+      .tap-overlay {
+        font-size: 16px;
+        padding: 12px 30px;
+        bottom: 30px;
+      }
+
+      .slide-counter {
+        font-size: 14px;
+        padding: 8px 15px;
+      }
+    }
+
+    @media (orientation: landscape) {
+      .tap-overlay {
+        font-size: 14px;
+        padding: 10px 25px;
+        bottom: 20px;
+      }
+
+      .slide-counter {
+        font-size: 12px;
+        padding: 6px 12px;
+        top: 15px;
+        right: 20px;
+      }
+    }
+
     /* Form Modal */
     .form-modal {
       position: fixed;
@@ -121,6 +150,18 @@
       display: flex;
     }
 
+    /* Landscape: smaller padding to account for keyboard */
+    @media (orientation: landscape) {
+      .form-modal {
+        padding: 5px;
+      }
+    }
+
+    /* Prevent zoom on input focus for better UX */
+    input, textarea, select {
+      font-size: 16px;
+    }
+
     .form-box {
       position: relative;
       width: 100%;
@@ -133,6 +174,48 @@
       box-shadow: 0 20px 80px rgba(0, 0, 0, 0.8);
       display: flex;
       flex-direction: column;
+    }
+
+    /* Portrait mode (taller, narrower) */
+    @media (orientation: portrait) {
+      .form-box {
+        height: 85vh;
+        max-width: 95%;
+      }
+
+      .form-header h1 {
+        font-size: 24px;
+      }
+
+      iframe {
+        min-height: 400px;
+      }
+    }
+
+    /* Landscape mode (shorter, wider) */
+    @media (orientation: landscape) {
+      .form-box {
+        height: 95vh;
+        max-width: 90%;
+      }
+
+      .form-header h1 {
+        font-size: 20px;
+      }
+
+      .form-header p {
+        font-size: 12px;
+      }
+
+      iframe {
+        min-height: 300px;
+      }
+
+      .close-btn {
+        width: 45px;
+        height: 45px;
+        font-size: 28px;
+      }
     }
 
     .form-header {
@@ -394,6 +477,20 @@
         fullscreenRequested = true;
         enterFullscreen();
       }
+    });
+
+    // Handle orientation changes
+    window.addEventListener('orientationchange', () => {
+      setTimeout(() => {
+        // Adjust form modal size on rotation
+        const formModal = document.getElementById('formModal');
+        if (formModal.classList.contains('visible')) {
+          formModal.classList.remove('visible');
+          setTimeout(() => {
+            formModal.classList.add('visible');
+          }, 100);
+        }
+      }, 100);
     });
 
     // Initialize on load
