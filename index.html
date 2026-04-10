@@ -6,6 +6,9 @@
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black">
   <title>Hotel Chul - Guest Feedback</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;1,400&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
   <style>
     * {
       margin: 0;
@@ -21,7 +24,7 @@
     }
 
     body {
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      font-family: 'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
       background: #1a1a1a;
       -webkit-tap-highlight-color: transparent;
       touch-action: manipulation;
@@ -38,7 +41,6 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      cursor: pointer;
       z-index: 100;
     }
 
@@ -88,26 +90,103 @@
       object-fit: cover;
     }
 
-    /* Tap to Feedback Overlay */
-    .tap-overlay {
+    /* Feedback Prompt - Elegant floating button */
+    .feedback-prompt {
       position: absolute;
-      bottom: 40px;
-      left: 50%;
-      transform: translateX(-50%);
-      background: rgba(212, 175, 55, 0.9);
-      color: #1a1a1a;
-      padding: 15px 40px;
-      border-radius: 50px;
-      font-size: 18px;
-      font-weight: bold;
-      text-align: center;
-      animation: pulse 2s infinite;
+      bottom: 48px;
+      right: 40px;
       z-index: 10;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      background: rgba(0, 0, 0, 0.45);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border: 1px solid rgba(212, 175, 55, 0.25);
+      padding: 14px 28px 14px 22px;
+      border-radius: 60px;
+      cursor: pointer;
+      animation: feedbackFadeIn 1s cubic-bezier(0.23, 1, 0.32, 1) forwards, feedbackGlow 4s ease-in-out 2s infinite;
+      opacity: 0;
+      transition: transform 0.25s cubic-bezier(0.23, 1, 0.32, 1), background 0.3s ease, box-shadow 0.3s ease;
+      box-shadow: 0 4px 24px rgba(0, 0, 0, 0.3);
+      -webkit-tap-highlight-color: transparent;
+      user-select: none;
     }
 
-    @keyframes pulse {
-      0%, 100% { opacity: 0.8; }
-      50% { opacity: 1; }
+    .feedback-prompt:active {
+      transform: scale(0.95);
+      background: rgba(212, 175, 55, 0.15);
+      box-shadow: 0 2px 12px rgba(212, 175, 55, 0.25);
+    }
+
+    .feedback-prompt-icon {
+      width: 20px;
+      height: 20px;
+      fill: none;
+      stroke: #d4af37;
+      stroke-width: 1.5;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+      flex-shrink: 0;
+      opacity: 0.9;
+    }
+
+    .feedback-prompt-text {
+      display: flex;
+      flex-direction: column;
+      gap: 1px;
+    }
+
+    .feedback-prompt-label {
+      font-family: 'Playfair Display', Georgia, serif;
+      font-size: 15px;
+      font-weight: 500;
+      color: rgba(255, 255, 255, 0.95);
+      letter-spacing: 0.3px;
+      line-height: 1.2;
+    }
+
+    .feedback-prompt-sub {
+      font-family: 'Inter', sans-serif;
+      font-size: 10.5px;
+      font-weight: 300;
+      color: rgba(212, 175, 55, 0.7);
+      letter-spacing: 0.5px;
+    }
+
+    .feedback-prompt-chevron {
+      width: 14px;
+      height: 14px;
+      fill: none;
+      stroke: rgba(212, 175, 55, 0.6);
+      stroke-width: 2;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+      flex-shrink: 0;
+      margin-left: 4px;
+    }
+
+    @keyframes feedbackFadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(12px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @keyframes feedbackGlow {
+      0%, 100% {
+        border-color: rgba(212, 175, 55, 0.2);
+        box-shadow: 0 4px 24px rgba(0, 0, 0, 0.3);
+      }
+      50% {
+        border-color: rgba(212, 175, 55, 0.4);
+        box-shadow: 0 4px 32px rgba(212, 175, 55, 0.1);
+      }
     }
 
     .slide-counter {
@@ -124,10 +203,18 @@
 
     /* Responsive adjustments */
     @media (orientation: portrait) {
-      .tap-overlay {
-        font-size: 16px;
-        padding: 12px 30px;
-        bottom: 30px;
+      .feedback-prompt {
+        bottom: 36px;
+        right: 28px;
+        padding: 12px 24px 12px 18px;
+      }
+
+      .feedback-prompt-label {
+        font-size: 14px;
+      }
+
+      .feedback-prompt-sub {
+        font-size: 10px;
       }
 
       .slide-counter {
@@ -137,10 +224,24 @@
     }
 
     @media (orientation: landscape) {
-      .tap-overlay {
-        font-size: 14px;
-        padding: 10px 25px;
-        bottom: 20px;
+      .feedback-prompt {
+        bottom: 24px;
+        right: 28px;
+        padding: 10px 22px 10px 16px;
+        gap: 10px;
+      }
+
+      .feedback-prompt-label {
+        font-size: 13px;
+      }
+
+      .feedback-prompt-sub {
+        font-size: 9.5px;
+      }
+
+      .feedback-prompt-icon {
+        width: 17px;
+        height: 17px;
       }
 
       .slide-counter {
@@ -158,16 +259,22 @@
       left: 0;
       width: 100%;
       height: 100%;
-      background: rgba(0, 0, 0, 0.95);
-      display: none;
+      background: rgba(0, 0, 0, 0);
+      display: flex;
       align-items: center;
       justify-content: center;
       z-index: 200;
       padding: 10px;
+      opacity: 0;
+      visibility: hidden;
+      transition: opacity 0.4s cubic-bezier(0.23, 1, 0.32, 1), background 0.4s cubic-bezier(0.23, 1, 0.32, 1), visibility 0s 0.4s;
     }
 
     .form-modal.visible {
-      display: flex;
+      opacity: 1;
+      visibility: visible;
+      background: rgba(10, 5, 8, 0.88);
+      transition: opacity 0.4s cubic-bezier(0.23, 1, 0.32, 1), background 0.4s cubic-bezier(0.23, 1, 0.32, 1), visibility 0s 0s;
     }
 
     /* Landscape: smaller padding to account for keyboard */
@@ -187,12 +294,18 @@
       width: 100%;
       max-width: 98%;
       height: 90vh;
-      background: white;
-      border-radius: 12px;
+      background: #ffffff;
+      border-radius: 16px;
       overflow: hidden;
-      box-shadow: 0 20px 80px rgba(0, 0, 0, 0.8);
+      box-shadow: 0 25px 100px rgba(0, 0, 0, 0.6), 0 0 0 1px rgba(212, 175, 55, 0.1);
       display: flex;
       flex-direction: column;
+      transform: scale(0.96) translateY(12px);
+      transition: transform 0.45s cubic-bezier(0.23, 1, 0.32, 1);
+    }
+
+    .form-modal.visible .form-box {
+      transform: scale(1) translateY(0);
     }
 
     /* Portrait mode (taller, narrower) */
@@ -231,62 +344,120 @@
       }
 
       .close-btn {
-        width: 45px;
-        height: 45px;
-        font-size: 28px;
+        width: 40px;
+        height: 40px;
+        font-size: 18px;
       }
     }
 
     .form-header {
-      background: linear-gradient(90deg, #6b1f2a 0%, #8b3a3a 100%);
-      color: #d4af37;
-      padding: 25px;
-      text-align: center;
+      background: linear-gradient(135deg, #5a1a24 0%, #7a2e38 50%, #6b1f2a 100%);
+      color: #f0dca0;
+      padding: 22px 60px 22px 28px;
+      text-align: left;
       flex-shrink: 0;
+      position: relative;
     }
 
     .form-header h1 {
-      font-size: 28px;
-      margin-bottom: 5px;
+      font-family: 'Playfair Display', Georgia, serif;
+      font-size: 26px;
+      font-weight: 500;
+      margin-bottom: 4px;
+      letter-spacing: 0.3px;
     }
 
     .form-header p {
-      font-size: 14px;
-      color: #c9a961;
+      font-family: 'Inter', sans-serif;
+      font-size: 13px;
+      font-weight: 300;
+      color: rgba(240, 220, 160, 0.7);
+      letter-spacing: 0.3px;
     }
 
     .close-btn {
       position: absolute;
-      top: 20px;
-      right: 20px;
-      background: #d4af37;
-      color: #1a1a1a;
-      border: none;
-      font-size: 32px;
-      width: 50px;
-      height: 50px;
+      top: 50%;
+      right: 16px;
+      transform: translateY(-50%);
+      background: rgba(255, 255, 255, 0.12);
+      color: rgba(240, 220, 160, 0.85);
+      border: 1px solid rgba(240, 220, 160, 0.2);
+      font-size: 20px;
+      width: 44px;
+      height: 44px;
       border-radius: 50%;
       cursor: pointer;
       z-index: 301;
-      transition: all 0.3s ease;
+      transition: all 0.25s cubic-bezier(0.23, 1, 0.32, 1);
       display: flex;
       align-items: center;
       justify-content: center;
-      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+      -webkit-tap-highlight-color: transparent;
     }
 
     .close-btn:hover {
-      background: #e6c956;
-      transform: rotate(90deg);
+      background: rgba(255, 255, 255, 0.2);
+      color: #f0dca0;
     }
 
     .close-btn:active {
-      transform: rotate(90deg) scale(0.95);
+      transform: translateY(-50%) scale(0.9);
+      background: rgba(255, 255, 255, 0.25);
+    }
+
+    /* Loading state for Google Form */
+    .form-loading {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      background: #faf9f7;
+      z-index: 5;
+      gap: 20px;
+      transition: opacity 0.5s ease;
+    }
+
+    .form-loading.hidden {
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    .form-loading-spinner {
+      width: 36px;
+      height: 36px;
+      border: 2px solid rgba(107, 31, 42, 0.1);
+      border-top: 2px solid #d4af37;
+      border-radius: 50%;
+      animation: formSpin 1s cubic-bezier(0.45, 0.05, 0.55, 0.95) infinite;
+    }
+
+    @keyframes formSpin {
+      to { transform: rotate(360deg); }
+    }
+
+    .form-loading-text {
+      font-family: 'Playfair Display', Georgia, serif;
+      font-size: 15px;
+      color: #8b3a3a;
+      letter-spacing: 0.3px;
+      font-weight: 400;
+    }
+
+    .iframe-wrapper {
+      position: relative;
+      flex: 1;
+      min-height: 0;
     }
 
     iframe {
       width: 100%;
-      flex: 1;
+      height: 100%;
       min-height: 500px;
       border: none;
       display: block;
@@ -300,33 +471,50 @@
       left: 0;
       width: 100%;
       height: 100%;
-      background: linear-gradient(135deg, #6b1f2a 0%, #3d1f2a 100%);
-      display: none;
+      background: linear-gradient(135deg, #5a1a24 0%, #3d1520 100%);
+      display: flex;
       align-items: center;
       justify-content: center;
       z-index: 250;
       flex-direction: column;
+      opacity: 0;
+      visibility: hidden;
+      transition: opacity 0.5s cubic-bezier(0.23, 1, 0.32, 1), visibility 0s 0.5s;
     }
 
     .thank-you.visible {
-      display: flex;
+      opacity: 1;
+      visibility: visible;
+      transition: opacity 0.5s cubic-bezier(0.23, 1, 0.32, 1), visibility 0s 0s;
     }
 
     .thank-you-content {
       text-align: center;
-      color: #d4af37;
+      color: #f0dca0;
+      transform: translateY(16px);
+      transition: transform 0.6s cubic-bezier(0.23, 1, 0.32, 1);
+    }
+
+    .thank-you.visible .thank-you-content {
+      transform: translateY(0);
     }
 
     .thank-you h2 {
-      font-size: 56px;
-      margin-bottom: 20px;
+      font-family: 'Playfair Display', Georgia, serif;
+      font-size: 48px;
+      font-weight: 500;
+      margin-bottom: 16px;
+      letter-spacing: 0.5px;
     }
 
     .thank-you p {
-      font-size: 24px;
-      color: #c9a961;
-      max-width: 600px;
-      line-height: 1.6;
+      font-family: 'Inter', sans-serif;
+      font-size: 20px;
+      font-weight: 300;
+      color: rgba(240, 220, 160, 0.7);
+      max-width: 500px;
+      line-height: 1.7;
+      letter-spacing: 0.2px;
     }
 
     /* Admin Settings Gear Icon */
@@ -666,38 +854,56 @@
   <audio id="backgroundMusic"></audio>
 
   <!-- Full Screen Slideshow -->
-  <div class="slideshow-container" id="slideshowContainer" onclick="openForm()">
+  <div class="slideshow-container" id="slideshowContainer">
     <div class="slides-wrapper" id="slidesContainer">
       <!-- Slides will be loaded here -->
     </div>
-    <div class="tap-overlay">👆 TAP TO SHARE FEEDBACK</div>
+    <button class="feedback-prompt" id="feedbackPrompt" onclick="openForm()" aria-label="Share your feedback with us" role="button">
+      <svg class="feedback-prompt-icon" viewBox="0 0 24 24" aria-hidden="true">
+        <path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 16.8l-6.2 4.5 2.4-7.4L2 9.4h7.6z"/>
+      </svg>
+      <span class="feedback-prompt-text">
+        <span class="feedback-prompt-label">We'd love your feedback</span>
+        <span class="feedback-prompt-sub">Tap to share your experience</span>
+      </span>
+      <svg class="feedback-prompt-chevron" viewBox="0 0 24 24" aria-hidden="true">
+        <path d="M9 18l6-6-6-6"/>
+      </svg>
+    </button>
     <div class="slide-counter">
       <span id="slideNumber">1</span> / <span id="totalSlides">1</span>
     </div>
   </div>
 
   <!-- Feedback Form Modal -->
-  <div class="form-modal" id="formModal">
-    <button class="close-btn" onclick="closeForm()">&#10005;</button>
+  <div class="form-modal" id="formModal" role="dialog" aria-label="Guest feedback form" aria-modal="true">
     <div class="form-box">
       <div class="form-header">
         <h1>Guest Feedback</h1>
-        <p>Help us serve you better</p>
+        <p>We'd love to hear about your experience</p>
+        <button class="close-btn" onclick="closeForm()" aria-label="Close feedback form">&#10005;</button>
       </div>
-      <iframe
-        id="gform"
-        src="https://docs.google.com/forms/d/e/1FAIpQLSf6OdEbQtc6J0AEjtxAaPmDCz8AZHpuJzGf6ym-trYC8HWDEg/viewform?embedded=true"
-        scrolling="yes"
-        allow="geolocation">
-      </iframe>
+      <div class="iframe-wrapper">
+        <div class="form-loading" id="formLoading">
+          <div class="form-loading-spinner"></div>
+          <span class="form-loading-text">Preparing your feedback form...</span>
+        </div>
+        <iframe
+          id="gform"
+          src="https://docs.google.com/forms/d/e/1FAIpQLSf6OdEbQtc6J0AEjtxAaPmDCz8AZHpuJzGf6ym-trYC8HWDEg/viewform?embedded=true"
+          scrolling="yes"
+          allow="geolocation"
+          title="Guest feedback form">
+        </iframe>
+      </div>
     </div>
   </div>
 
   <!-- Thank You Screen -->
-  <div class="thank-you" id="thankYouScreen">
+  <div class="thank-you" id="thankYouScreen" role="status" aria-live="polite">
     <div class="thank-you-content">
-      <h2>🙏 Thank You!</h2>
-      <p>Your feedback means everything to us.<br>We look forward to serving you again.</p>
+      <h2>Thank You</h2>
+      <p>Your feedback means everything to us.<br>We look forward to welcoming you again.</p>
     </div>
   </div>
 
@@ -1115,6 +1321,11 @@
       if (isFormOpen) return;
       isFormOpen = true;
       formOpenTime = Date.now();
+      // Show loading state if form hasn't loaded yet
+      var loadingEl = document.getElementById('formLoading');
+      if (loadingEl && !formLoaded) {
+        loadingEl.classList.remove('hidden');
+      }
       document.getElementById('formModal').classList.add('visible');
       document.getElementById('slideshowContainer').style.pointerEvents = 'none';
 
@@ -1153,6 +1364,9 @@
         // Reload form for next person
         document.getElementById('gform').src = formURL;
         formLoaded = false;
+        // Reset loading overlay for next visitor
+        var loadingEl = document.getElementById('formLoading');
+        if (loadingEl) loadingEl.classList.remove('hidden');
         scheduleNextRotation();
       }, 2500);
     }
@@ -1311,8 +1525,14 @@
       }
     }
 
-    // Detect form submission via iframe reload
+    // Detect form submission via iframe reload and handle loading state
     document.getElementById('gform').addEventListener('load', function () {
+      // Hide the loading overlay once the iframe has loaded
+      var loadingEl = document.getElementById('formLoading');
+      if (loadingEl) {
+        loadingEl.classList.add('hidden');
+      }
+
       if (!formLoaded) {
         formLoaded = true;
         return;
